@@ -89,7 +89,7 @@ namespace SLAGG.TeamSpeak
 					{
 						string[] columns = players[i].Split ('\t');
 						string nickName = columns[14].Replace ("\"", String.Empty);
-						if (ConfigurationManager.AppSettings["tsNickname"] == "SLAGG")
+						if (ConfigurationManager.AppSettings["tsNickname"] == nickName)
 							continue;
 
 						string registeredName = columns[15].Replace ("\"", String.Empty);
