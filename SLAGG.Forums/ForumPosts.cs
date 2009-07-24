@@ -106,7 +106,7 @@ namespace SLAGG.Forums
 								{
 									ulong topicID = Convert.ToUInt64 (reader["topic_id"]);
 
-									var msgBuilder = new StringBuilder (Forums.GetUsername (Convert.ToUInt64 (reader["poster_id"])));
+									var msgBuilder = new StringBuilder (Forums.GetUsername (Convert.ToInt64 (reader["poster_id"])));
 									msgBuilder.Append (" posted in ");
 									msgBuilder.Append (Forums.GetTopicSubject (topicID));
 									msgBuilder.Append (" ( http://www.slagg.org/F0rUmZ/viewtopic.php?p=");

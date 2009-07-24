@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SLAGG.Plugin;
 using MySql.Data.MySqlClient;
+using Mono.Rocks;
 
 namespace SLAGG.Events
 {
@@ -27,69 +28,22 @@ namespace SLAGG.Events
 
 		protected override string ProcessMessage (string nick, string message)
 		{
-			if (message.StartsWith ("~nextevent"))
+			if (!message.StartsWith ("~nextevent"))
+				return null;
+			
+			try
 			{
-				try
-				{
-					this.connection = new MySqlConnection (EventConnections.ConnectionString);
-					this.connection.Open ();
-
-					ulong eventID = 0;
-					string location = null;
-					DateTime date = DateTime.Now;
-
-					var cmd = connection.CreateCommand ();
-					cmd.CommandText = "SELECT shortname,evid,evdatestart FROM locations,events WHERE (evdatestart>now() AND locations.locid=events.locid) ORDER BY evdatestart LIMIT 1;";
-
-					var reader = cmd.ExecuteReader ();
-					if (reader.Read ())
-					{
-						eventID = Convert.ToUInt64 (reader["evid"]);
-						location = (string)reader["shortname"];
-						date = (DateTime)reader["evdatestart"];
-					}
-
-					reader.Close ();
-					cmd.Dispose ();
-
-					if (eventID != 0)
-					{
-						StringBuilder registered = new StringBuilder ();
-
-						cmd = connection.CreateCommand ();
-						cmd.CommandText = "SELECT handle FROM users,userhist WHERE (uid=id AND evid=" + eventID + " AND tcreate>0)";
-
-						int i = 0;
-
-						reader = cmd.ExecuteReader ();
-						while (reader.Read ())
-						{
-							++i;
-
-							if (registered.Length > 0)
-								registered.Append (", ");
-
-							registered.Append ((string)reader["handle"]);
-						}
-
-						reader.Close ();
-						cmd.Dispose ();
-
-						this.connection.Close ();
-						this.connection.Dispose ();
-						this.connection = null;
-
-						return String.Format ("Next Event: {0} at {1}. Registered [{3}]: {2}", date.ToString ("ddd, MMMM d"), location, registered.ToString (), i);
-					}
-				}
-				catch (MySqlException ex)
-				{
-					this.Stop ();
-					return "Registrations module b0rked: " + ex.Message;
-				}
+				var ev = EventConnection.GetEvents().OrderBy (e => e.Date).FirstOrDefault();
+				return (ev == null)
+				       	? "No next event."
+				       	: String.Format ("Next Event: {0} at {1}. Registered [{3}]: {2}", ev.Date.ToString ("ddd, MMMM d"),
+				       	                 ev.Location, ev.Registered.Explode (","), ev.Registered.Count());
 			}
-
-			return null;
+			catch (MySqlException ex)
+			{
+				this.Stop();
+				return "Registrations module b0rked: " + ex.Message;
+			}
 		}
 	}
 }

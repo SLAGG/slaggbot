@@ -29,14 +29,14 @@ namespace SLAGG.Forums
 			}
 		}
 
-		public static string GetUsername (ulong userID)
+		public static string GetUsername (long userID)
 		{
 			var connection = Forums.GetConnection ();
 
 			lock (lck)
 			{
 				if (users == null)
-					users = new Dictionary<ulong, string> ();
+					users = new Dictionary<long, string> ();
 
 				if (!users.ContainsKey (userID))
 				{
@@ -123,7 +123,7 @@ namespace SLAGG.Forums
 		private static object lck = new object ();
 		
 		private static Dictionary<ulong, string> forums;
-		private static Dictionary<ulong, string> users;
+		private static Dictionary<long, string> users;
 
 		private static MySqlConnectionStringBuilder builder;
 		private static MySqlConnection connection;

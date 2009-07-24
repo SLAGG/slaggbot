@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace SLAGGBot
 {
-	public class Kahn
+	public class Khan
 		: ParserPluginBase
 	{
 		//public override void SendHelp (string nick)

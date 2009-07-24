@@ -62,8 +62,8 @@ namespace SLAGG.GameServers.iD
 
 		#endregion
 
-		private static Regex propertyMatcher = new Regex (@"\\(?<key>\w+)\\(?<value>[^\\]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-		private static Regex playerMatcher = new Regex ("(?<score>\\d+)\\s(?<ping>\\d+)\\s\"(?<name>.+?)\"", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+		private static readonly Regex PropertyMatcher = new Regex (@"\\(?<key>\w+)\\(?<value>[^\\]+)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+		private static readonly Regex PlayerMatcher = new Regex ("(?<score>\\d+)\\s(?<ping>\\d+)\\s\"(?<name>.+?)\"", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
 		private void QueryServer ()
 		{
@@ -92,17 +92,17 @@ namespace SLAGG.GameServers.iD
 				string type = ByteExtensions.GetString (buffer, i, ref i, '\n');
 				string results = ByteExtensions.GetString (buffer, i, ref i);
 
-				var propMatches = propertyMatcher.Matches (results);
+				var propMatches = PropertyMatcher.Matches (results);
 				var properties = new Dictionary<string, string> ();
 				foreach (Match property in propMatches)
 					properties.Add (property.Groups["key"].Value, property.Groups["value"].Value);
 
 				var players = new List<IPlayer> ();
 
-				var matches = playerMatcher.Matches (results);
+				var matches = PlayerMatcher.Matches (results);
 				foreach (Match m in matches)
 				{
-					players.Add (new Player ()
+					players.Add (new Player
 					{
 						Name = m.Groups["name"].Value,
 						Score = int.Parse (m.Groups["score"].Value)

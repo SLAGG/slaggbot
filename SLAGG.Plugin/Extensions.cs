@@ -11,5 +11,20 @@ namespace SLAGG.Plugin
 		{
 			return (self > max) ? max : self;
 		}
+
+		public static string Explode<T> (this IEnumerable<T> self, string separator)
+		{
+			StringBuilder builder = new StringBuilder();
+
+			foreach (T item in self)
+			{
+				if (builder.Length > 0)
+					builder.Append (separator);
+
+				builder.Append (item.ToString());
+			}
+
+			return builder.ToString();
+		}
 	}
 }

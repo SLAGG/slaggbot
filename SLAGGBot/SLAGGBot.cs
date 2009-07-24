@@ -20,8 +20,8 @@ namespace SLAGGBot
 			return Operators.Contains (nick);
 		}
 
-		internal static List<IPlugin> Plugins = new List<IPlugin> ();
-		internal static HashSet<string> Operators = new HashSet<string> ();
+		internal static readonly List<IPlugin> Plugins = new List<IPlugin> ();
+		internal static readonly HashSet<string> Operators = new HashSet<string> ();
 
 		internal static IRCMessanger Messanger;
 
@@ -30,10 +30,10 @@ namespace SLAGGBot
 		static void Main (string[] args)
 		{
 			if (!Debugger.IsAttached)
-				AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+				AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-			Console.WindowWidth = Console.LargestWindowWidth - 20;
-			Console.WindowHeight = Console.LargestWindowHeight - 20;
+			//Console.WindowWidth = Console.LargestWindowWidth - 20;
+			//Cosole.WindowHeight = Console.LargestWindowHeight - 20;
 			Console.BufferHeight = 1000;
 
 			string[] files = Directory.GetFiles (Environment.CurrentDirectory);
@@ -52,12 +52,13 @@ namespace SLAGGBot
 			IRCConnection.Listener.OnPrivate		+= Listener_OnPrivate;
 			IRCConnection.Listener.OnJoin			+= Listener_OnJoin;
 			IRCConnection.Listener.OnDisconnected	+= Listener_OnDisconnected;
+			IRCConnection.Listener.OnError			+= Listener_OnError;
 			IRCConnection.Connect ();
 
 			IRCConnection.Sender.PrivateMessage ("nickserv", "identify " + ConfigurationManager.AppSettings["ircPassword"]);
 			IRCConnection.Sender.Join (ConfigurationManager.AppSettings["ircChannel"]);
 
-			IRCConnection.Listener.OnNames += new NamesEventHandler (Listener_OnNames);
+			IRCConnection.Listener.OnNames += Listener_OnNames;
 
 
 			Messanger = new IRCMessanger (IRCConnection.Sender, ConfigurationManager.AppSettings["ircChannel"]);
@@ -69,6 +70,12 @@ namespace SLAGGBot
 				Console.ForegroundColor = ConsoleColor.Blue;
 				Console.WriteLine (plugin.GetType ().FullName + " module loaded.");
 			}
+		}
+
+		static void Listener_OnError (ReplyCode code, string message)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine (code + ": " + message);
 		}
 
 		static void Listener_OnDisconnected ()
