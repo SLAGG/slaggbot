@@ -53,6 +53,8 @@ namespace SLAGGBot
 			IRCConnection.Listener.OnJoin			+= Listener_OnJoin;
 			IRCConnection.Listener.OnDisconnected	+= Listener_OnDisconnected;
 			IRCConnection.Listener.OnError			+= Listener_OnError;
+			IRCConnection.Listener.OnNick			+= Listener_OnNick;
+			IRCConnection.Listener.OnNickError		+= Listener_OnNickError;
 			IRCConnection.Connect ();
 
 			IRCConnection.Sender.PrivateMessage ("nickserv", "identify " + ConfigurationManager.AppSettings["ircPassword"]);
@@ -70,6 +72,12 @@ namespace SLAGGBot
 				Console.ForegroundColor = ConsoleColor.Blue;
 				Console.WriteLine (plugin.GetType ().FullName + " module loaded.");
 			}
+		}
+
+		static void Listener_OnNickError (string badNick, string reason)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine ("Nickname error: " + reason);
 		}
 
 		static void Listener_OnError (ReplyCode code, string message)
