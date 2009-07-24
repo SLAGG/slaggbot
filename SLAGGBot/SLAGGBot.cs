@@ -53,7 +53,6 @@ namespace SLAGGBot
 			IRCConnection.Listener.OnJoin			+= Listener_OnJoin;
 			IRCConnection.Listener.OnDisconnected	+= Listener_OnDisconnected;
 			IRCConnection.Listener.OnError			+= Listener_OnError;
-			IRCConnection.Listener.OnNick			+= Listener_OnNick;
 			IRCConnection.Listener.OnNickError		+= Listener_OnNickError;
 			IRCConnection.Connect ();
 
