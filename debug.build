@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project name="SLAGGBot" default="build" basedir=".">
+	<property name="nant.settings.currentframework" value="net-3.5" />
+
+	<target name="build">
+		<exec program="${DotNetFramework3.5_x86_Path}\msbuild.exe">
+			<arg value='/property:Configuration=Debug;Platform="Any CPU"' />
+			<arg value="SLAGGBot.sln" />
+		</exec>
+
+		<zip zipfile="SLAGGBot.zip">
+			<fileset>
+				<include name="SLAGGBot/bin/Debug/SLAGGBot.exe" />
+				<include name="SLAGGBot/bin/Debug/SLAGGBot.pdb" />
+				<include name="SLAGGBot/bin/Debug/SLAGGBot.exe.config" />
+				<include name="SLAGGBot/bin/Debug/SLAGG.Plugin.dll" />
+				<include name="SLAGGBot/bin/Debug/SLAGG.Plugin.pdb" />
+				<include name="SLAGGBot/bin/Debug/Sharkbite.Thresher.dll" />
+
+				<include name="SLAGG.RSS/bin/Debug/SLAGG.RSS.dll" />
+				<include name="SLAGG.RSS/bin/Debug/SLAGG.RSS.pdb" />
+				<include name="SLAGG.RSS/bin/Debug/RSS.NET.dll" />
+
+				<include name="SLAGG.GameServers/bin/Debug/SLAGG.GameServers.dll" />
+				<include name="SLAGG.GameServers/bin/Debug/SLAGG.GameServers.pdb" />
+
+				<include name="SLAGG.Forums/bin/Debug/SLAGG.Forums.dll" />
+				<include name="SLAGG.Forums/bin/Debug/SLAGG.Forums.pdb" />
+				<include name="SLAGG.Forums/bin/Debug/MySql.Data.dll" />
+
+				<include name="SLAGG.Events/bin/Debug/SLAGG.Events.dll" />
+				<include name="SLAGG.Events/bin/Debug/SLAGG.Events.pdb" />
+			</fileset>
+		</zip>
+	</target>
+</project>

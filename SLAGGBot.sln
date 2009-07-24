@@ -21,6 +21,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SLAGG.Gablarski", "SLAGG.Ga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mono.Rocks", "Mono.Rocks\Mono.Rocks.csproj", "{F656F792-2CDE-4E17-BB5F-6A6F1C266CB8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build Scripts", "Build Scripts", "{00AB974E-5F43-47C3-80A8-122DDB466ED3}"
+	ProjectSection(SolutionItems) = preProject
+		debug.build = debug.build
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

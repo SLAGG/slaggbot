@@ -75,7 +75,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(TargetPath)" "$(SolutionDir)SLAGGBot\bin\$(ConfigurationName)"
-copy /Y "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)SLAGGBot\bin\$(ConfigurationName)"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
 </Project>
