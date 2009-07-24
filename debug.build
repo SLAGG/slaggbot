@@ -10,26 +10,26 @@
 
 		<zip zipfile="SLAGGBot.zip">
 			<fileset>
-				<include name="SLAGGBot/bin/Debug/SLAGGBot.exe" />
-				<include name="SLAGGBot/bin/Debug/SLAGGBot.pdb" />
-				<include name="SLAGGBot/bin/Debug/SLAGGBot.exe.config" />
-				<include name="SLAGGBot/bin/Debug/SLAGG.Plugin.dll" />
-				<include name="SLAGGBot/bin/Debug/SLAGG.Plugin.pdb" />
-				<include name="SLAGGBot/bin/Debug/Sharkbite.Thresher.dll" />
+				<include frompath="SLAGGBot/bin/Debug" name="SLAGGBot.exe" />
+				<include frompath="SLAGGBot/bin/Debug" name="SLAGGBot.pdb" />
+				<include frompath="SLAGGBot/bin/Debug" name="SLAGGBot.exe.config" />
+				<include frompath="SLAGGBot/bin/Debug" name="SLAGG.Plugin.dll" />
+				<include frompath="SLAGGBot/bin/Debug" name="SLAGG.Plugin.pdb" />
+				<include frompath="SLAGGBot/bin/Debug" name="Sharkbite.Thresher.dll" />
 
-				<include name="SLAGG.RSS/bin/Debug/SLAGG.RSS.dll" />
-				<include name="SLAGG.RSS/bin/Debug/SLAGG.RSS.pdb" />
-				<include name="SLAGG.RSS/bin/Debug/RSS.NET.dll" />
+				<include frompath="SLAGG.RSS/bin/Debug" name="SLAGG.RSS.dll" />
+				<include frompath="SLAGG.RSS/bin/Debug" name="SLAGG.RSS.pdb" />
+				<include frompath="SLAGG.RSS/bin/Debug" name="RSS.NET.dll" />
 
-				<include name="SLAGG.GameServers/bin/Debug/SLAGG.GameServers.dll" />
-				<include name="SLAGG.GameServers/bin/Debug/SLAGG.GameServers.pdb" />
+				<include frompath="SLAGG.GameServers/bin/Debug" name="SLAGG.GameServers.dll" />
+				<include frompath="SLAGG.GameServers/bin/Debug" name="SLAGG.GameServers.pdb" />
 
-				<include name="SLAGG.Forums/bin/Debug/SLAGG.Forums.dll" />
-				<include name="SLAGG.Forums/bin/Debug/SLAGG.Forums.pdb" />
-				<include name="SLAGG.Forums/bin/Debug/MySql.Data.dll" />
+				<include frompath="SLAGG.Forums/bin/Debug" name="SLAGG.Forums.dll" />
+				<include frompath="SLAGG.Forums/bin/Debug" name="SLAGG.Forums.pdb" />
+				<include frompath="SLAGG.Forums/bin/Debug" name="MySql.Data.dll" />
 
-				<include name="SLAGG.Events/bin/Debug/SLAGG.Events.dll" />
-				<include name="SLAGG.Events/bin/Debug/SLAGG.Events.pdb" />
+				<include frompath="SLAGG.Events/bin/Debug" name="SLAGG.Events.dll" />
+				<include frompath="SLAGG.Events/bin/Debug" name="SLAGG.Events.pdb" />
 			</fileset>
 		</zip>
 	</target>
