@@ -39,6 +39,13 @@
 				<include name="SLAGG.Events.dll" />
 				<include name="SLAGG.Events.pdb" />
 			</fileset>
+
+			<fileset basedir="SLAGG.Gablarski/bin/Debug">
+				<include name="SLAGG.Gablarski.dll" />
+				<include name="SLAGG.Gablarski.pdb" />
+				<include name="Gablarski.dll" />
+				<include name="Gablarski.pdb" />
+			</fileset>
 		</zip>
 	</target>
 </project>
