@@ -44,6 +44,9 @@ namespace SLAGG.Gablarski
 		{
 			this.messanger = m;
 			this.gablarski = new GablarskiClient (new NetworkClientConnection());
+			this.gablarski.Connected += new EventHandler (OnConnected);
+			this.gablarski.ConnectionRejected += new EventHandler<RejectedConnectionEventArgs> (OnConnectionRejected);
+			this.gablarski.Disconnected += new EventHandler (OnDisconnected);
 			this.gablarski.Users.UserLoggedIn += OnUserLoggedIn;
 			this.gablarski.Users.UserDisconnected += OnUserDisconnected;
 			this.gablarski.Connect (ConfigurationManager.AppSettings["gbServer"], Int32.Parse (ConfigurationManager.AppSettings["gbPort"]));
@@ -68,7 +71,7 @@ namespace SLAGG.Gablarski
 		/// <param name="message">The message that was sent to the channel</param>
 		public void ProcessPublicMessage (string nick, string message)
 		{
-			if (!message.StartsWith ("~gablarski"))
+			if (!message.StartsWith ("~gablarski") || !message.StartsWith ("~gb"))
 				return;
 
 			var users = this.gablarski.Users.ToList();
@@ -83,12 +86,12 @@ namespace SLAGG.Gablarski
 		/// <param name="message">The message that was sent to the bot</param>
 		public void ProcessPrivateMessage(string nick, string message)
 		{
-			if (!message.StartsWith ("~gablarski"))
+			if (!message.StartsWith ("~gablarski") || !message.StartsWith ("~gb"))
 				return;
 
 			var users = this.gablarski.Users.ToList();
 			messanger.SendToUser (nick, "Gablarski: " + ConfigurationManager.AppSettings["gbDisplayServer"] + "  Players [" +
-										users.Count + "]:" + users.Select (cu => cu.Nickname).Explode (","));
+										users.Count + "]: " + users.Select (cu => cu.Nickname).Explode (","));
 		}
 
 		#endregion
@@ -96,14 +99,39 @@ namespace SLAGG.Gablarski
 		private IMessanger messanger;
 		private GablarskiClient gablarski;
 
-		private void OnUserLoggedIn (object sender, UserLoggedInEventArgs e)
+		private void OnUserLoggedIn (object sender, UserEventArgs e)
 		{
-			this.messanger.SendToChannel (e.UserInfo.Nickname + " has joined Gablarski.");
+			this.messanger.SendToChannel (e.User.Nickname + " has joined Gablarski.");
 		}
 
-		private void OnUserDisconnected (object sender, UserDisconnectedEventArgs e)
+		private void OnUserDisconnected (object sender, UserEventArgs e)
 		{
 			this.messanger.SendToChannel (e.User.Nickname + " has left Gablarski.");
+		}
+
+		private void OnConnected (object sender, EventArgs e)
+		{
+			if (messanger != null)
+				messanger.SendToChannel ("Connected to Gablarski server");
+		}
+
+		private void OnConnectionRejected (object sender, RejectedConnectionEventArgs e)
+		{
+			if (messanger != null)
+				messanger.SendToChannel ("Gablarski connection rejected: " + e.Reason);
+
+			Stop ();
+		}
+
+		private void OnDisconnected (object sender, EventArgs e)
+		{
+			Stop ();
+
+			if (messanger != null)
+			{
+				messanger.SendToChannel ("Gablarski disconnected");
+				Start (messanger);
+			}
 		}
 	}
 }
