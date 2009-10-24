@@ -30,44 +30,42 @@ namespace SLAGG.Events
 
 		public static IEnumerable<Event> GetEvents()
 		{
-			var connection = new MySqlConnection (ConnectionString);
-			connection.Open ();
-
-			var cmd = connection.CreateCommand ();
-			cmd.CommandText = "SELECT shortname,evid,evdatestart FROM locations,events WHERE (evdatestart>now() AND locations.locid=events.locid) ORDER BY evdatestart LIMIT 5;";
-
-			var connection2 = new MySqlConnection (ConnectionString);
-			connection2.Open();
-
-			var reader = cmd.ExecuteReader ();
-			while (reader.Read ())
+			using (var connection = new MySqlConnection (ConnectionString))
+			using (var connection2 = new MySqlConnection (ConnectionString))
 			{
-				Event ev = new Event (Convert.ToInt32 (reader["evid"]), (string)reader["shortname"], (DateTime)reader["evdatestart"]);
-				long eventId = Convert.ToInt64 (reader["evid"]);
+				connection.Open ();
+				connection2.Open ();
 
-				cmd = connection2.CreateCommand ();
-				cmd.CommandText = "SELECT handle FROM users,userhist WHERE (uid=id AND evid=" + eventId + " AND tcreate>0)";
+				var cmd = connection.CreateCommand ();
+				cmd.CommandText = "SELECT shortname,evid,evdatestart FROM locations,events WHERE (evdatestart>now() AND locations.locid=events.locid) ORDER BY evdatestart LIMIT 5;";
 
-				int i = 0;
-
-				List<string> registrants = new List<string>();
-				reader = cmd.ExecuteReader ();
+				var reader = cmd.ExecuteReader ();
 				while (reader.Read ())
 				{
-					++i;
-					registrants.Add ((string)reader["handle"]);
+					Event ev = new Event (Convert.ToInt32 (reader["evid"]), (string)reader["shortname"], (DateTime)reader["evdatestart"]);
+					long eventId = Convert.ToInt64 (reader["evid"]);
+
+					cmd = connection2.CreateCommand ();
+					cmd.CommandText = "SELECT handle FROM users,userhist WHERE (uid=id AND evid=" + eventId + " AND tcreate>0)";
+
+					int i = 0;
+
+					List<string> registrants = new List<string> ();
+					reader = cmd.ExecuteReader ();
+					while (reader.Read ())
+					{
+						++i;
+						registrants.Add ((string)reader["handle"]);
+					}
+
+					ev.Registered = registrants;
+
+					yield return ev;
 				}
 
-				ev.Registered = registrants;
-
-				connection.Close ();
-				connection.Dispose ();
-
-				yield return ev;
+				reader.Close ();
+				cmd.Dispose ();
 			}
-
-			reader.Close ();
-			cmd.Dispose ();
 		}
 
 		private static object lck = new object ();

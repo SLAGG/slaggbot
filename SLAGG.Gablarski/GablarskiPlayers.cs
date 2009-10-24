@@ -63,7 +63,7 @@ namespace SLAGG.Gablarski
 		/// <param name="message">The message that was sent to the channel</param>
 		public void ProcessPublicMessage (string nick, string message)
 		{
-			if (!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb"))
+			if ((!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb")) || this.gablarski == null)
 				return;
 
 			var users = this.gablarski.Users.ToList();
@@ -78,12 +78,12 @@ namespace SLAGG.Gablarski
 		/// <param name="message">The message that was sent to the bot</param>
 		public void ProcessPrivateMessage(string nick, string message)
 		{
-			if (!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb"))
+			if ((!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb")) || this.gablarski == null)
 				return;
 
 			var users = this.gablarski.Users.ToList();
 			messanger.SendToUser (nick, "Gablarski: " + ConfigurationManager.AppSettings["gbDisplayServer"] + "  Players [" +
-										users.Count + "]: " + users.Select (cu => cu.Nickname).Explode (","));
+										users.Count + "]: " + users.Select (cu => cu.Nickname).Explode (", "));
 		}
 
 		#endregion
@@ -104,7 +104,7 @@ namespace SLAGG.Gablarski
 
 		private void OnConnected (object sender, EventArgs e)
 		{
-			if (messanger != null)
+			if (messanger != null && !justStarting)
 				messanger.SendToChannel ("Connected to Gablarski server");
 		}
 
@@ -130,12 +130,12 @@ namespace SLAGG.Gablarski
 
 		private void StopGablarski()
 		{
+			justStarting = false;
+
 			this.gablarski.Users.UserJoined -= OnUserLoggedIn;
 			this.gablarski.Users.UserDisconnected -= OnUserDisconnected;
 			this.gablarski.Disconnect();
 			this.gablarski = null;
-
-			justStarting = false;
 		}
 
 		private void StartGablarski ()
