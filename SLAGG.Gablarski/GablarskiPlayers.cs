@@ -47,7 +47,7 @@ namespace SLAGG.Gablarski
 			this.gablarski.Connected += new EventHandler (OnConnected);
 			this.gablarski.ConnectionRejected += new EventHandler<RejectedConnectionEventArgs> (OnConnectionRejected);
 			this.gablarski.Disconnected += new EventHandler (OnDisconnected);
-			this.gablarski.Users.UserLoggedIn += OnUserLoggedIn;
+			this.gablarski.Users.UserJoined += OnUserLoggedIn;
 			this.gablarski.Users.UserDisconnected += OnUserDisconnected;
 			this.gablarski.Connect (ConfigurationManager.AppSettings["gbServer"], Int32.Parse (ConfigurationManager.AppSettings["gbPort"]));
 		}
@@ -58,7 +58,7 @@ namespace SLAGG.Gablarski
 		public void Stop()
 		{
 			this.messanger = null;
-			this.gablarski.Users.UserLoggedIn -= OnUserLoggedIn;
+			this.gablarski.Users.UserJoined -= OnUserLoggedIn;
 			this.gablarski.Users.UserDisconnected -= OnUserDisconnected;
 			this.gablarski.Disconnect();
 			this.gablarski = null;
