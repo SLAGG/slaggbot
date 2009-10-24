@@ -4,6 +4,7 @@ using Gablarski.Client;
 using Gablarski.Network;
 using SLAGG.Plugin;
 using System.Linq;
+using System.Threading;
 
 namespace SLAGG.Gablarski
 {
@@ -87,6 +88,7 @@ namespace SLAGG.Gablarski
 
 		#endregion
 
+		private bool justStarting = true;
 		private IMessanger messanger;
 		private GablarskiClient gablarski;
 
@@ -108,19 +110,21 @@ namespace SLAGG.Gablarski
 
 		private void OnConnectionRejected (object sender, RejectedConnectionEventArgs e)
 		{
-			if (messanger != null)
+			if (messanger != null && justStarting)
 				messanger.SendToChannel ("Gablarski connection rejected: " + e.Reason);
 
 			StopGablarski ();
+			Thread.Sleep (10000);
 			StartGablarski ();
 		}
 
 		private void OnDisconnected (object sender, EventArgs e)
 		{
-			if (messanger != null)
+			if (messanger != null && justStarting)
 				messanger.SendToChannel ("Gablarski disconnected");
 			
 			StopGablarski ();
+			Thread.Sleep (10000);
 			StartGablarski ();
 		}
 
@@ -130,6 +134,8 @@ namespace SLAGG.Gablarski
 			this.gablarski.Users.UserDisconnected -= OnUserDisconnected;
 			this.gablarski.Disconnect();
 			this.gablarski = null;
+
+			justStarting = false;
 		}
 
 		private void StartGablarski ()
