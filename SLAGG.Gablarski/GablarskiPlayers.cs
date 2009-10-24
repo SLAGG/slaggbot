@@ -43,13 +43,7 @@ namespace SLAGG.Gablarski
 		public void Start (IMessanger m)
 		{
 			this.messanger = m;
-			this.gablarski = new GablarskiClient (new NetworkClientConnection());
-			this.gablarski.Connected += new EventHandler (OnConnected);
-			this.gablarski.ConnectionRejected += new EventHandler<RejectedConnectionEventArgs> (OnConnectionRejected);
-			this.gablarski.Disconnected += new EventHandler (OnDisconnected);
-			this.gablarski.Users.UserJoined += OnUserLoggedIn;
-			this.gablarski.Users.UserDisconnected += OnUserDisconnected;
-			this.gablarski.Connect (ConfigurationManager.AppSettings["gbServer"], Int32.Parse (ConfigurationManager.AppSettings["gbPort"]));
+			StartGablarski ();
 		}
 
 		/// <summary>
@@ -58,10 +52,7 @@ namespace SLAGG.Gablarski
 		public void Stop()
 		{
 			this.messanger = null;
-			this.gablarski.Users.UserJoined -= OnUserLoggedIn;
-			this.gablarski.Users.UserDisconnected -= OnUserDisconnected;
-			this.gablarski.Disconnect();
-			this.gablarski = null;
+			StopGablarski();
 		}
 
 		/// <summary>
@@ -71,7 +62,7 @@ namespace SLAGG.Gablarski
 		/// <param name="message">The message that was sent to the channel</param>
 		public void ProcessPublicMessage (string nick, string message)
 		{
-			if (!message.StartsWith ("~gablarski") || !message.StartsWith ("~gb"))
+			if (!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb"))
 				return;
 
 			var users = this.gablarski.Users.ToList();
@@ -86,7 +77,7 @@ namespace SLAGG.Gablarski
 		/// <param name="message">The message that was sent to the bot</param>
 		public void ProcessPrivateMessage(string nick, string message)
 		{
-			if (!message.StartsWith ("~gablarski") || !message.StartsWith ("~gb"))
+			if (!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb"))
 				return;
 
 			var users = this.gablarski.Users.ToList();
@@ -120,18 +111,36 @@ namespace SLAGG.Gablarski
 			if (messanger != null)
 				messanger.SendToChannel ("Gablarski connection rejected: " + e.Reason);
 
-			Stop ();
+			StopGablarski ();
+			StartGablarski ();
 		}
 
 		private void OnDisconnected (object sender, EventArgs e)
 		{
-			Stop ();
-
 			if (messanger != null)
-			{
 				messanger.SendToChannel ("Gablarski disconnected");
-				Start (messanger);
-			}
+			
+			StopGablarski ();
+			StartGablarski ();
+		}
+
+		private void StopGablarski()
+		{
+			this.gablarski.Users.UserJoined -= OnUserLoggedIn;
+			this.gablarski.Users.UserDisconnected -= OnUserDisconnected;
+			this.gablarski.Disconnect();
+			this.gablarski = null;
+		}
+
+		private void StartGablarski ()
+		{
+			this.gablarski = new GablarskiClient (new NetworkClientConnection ());
+			this.gablarski.Connected += new EventHandler (OnConnected);
+			this.gablarski.ConnectionRejected += new EventHandler<RejectedConnectionEventArgs> (OnConnectionRejected);
+			this.gablarski.Disconnected += new EventHandler (OnDisconnected);
+			this.gablarski.Users.UserJoined += OnUserLoggedIn;
+			this.gablarski.Users.UserDisconnected += OnUserDisconnected;
+			this.gablarski.Connect (ConfigurationManager.AppSettings["gbServer"], Int32.Parse (ConfigurationManager.AppSettings["gbPort"]));
 		}
 	}
 }

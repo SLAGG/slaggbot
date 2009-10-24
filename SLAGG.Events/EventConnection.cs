@@ -60,9 +60,6 @@ namespace SLAGG.Events
 
 				ev.Registered = registrants;
 
-				reader.Close ();
-				cmd.Dispose ();
-
 				connection.Close ();
 				connection.Dispose ();
 

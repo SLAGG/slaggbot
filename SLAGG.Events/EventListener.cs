@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using SLAGG.Plugin;
-using System.Linq;
 
 namespace SLAGG.Events
 {
 	public class EventListener
-		//: IPlugin
+		: IPlugin
 	{
 		#region Implementation of IPlugin
 
@@ -87,7 +86,7 @@ namespace SLAGG.Events
 
 		private void Listener()
 		{
-			HashSet<string> nextEventPlayers = new HashSet<string>();
+			HashSet<string> nextEventPlayers = new HashSet<string> (EventConnection.GetEvents().OrderBy (e => e.Date).First().Registered);
 			while (this.listening)
 			{
 				var nextEvent = EventConnection.GetEvents().OrderBy (e => e.Date).First();
@@ -107,7 +106,7 @@ namespace SLAGG.Events
 
 				nextEventPlayers = new HashSet<string> (nextEvent.Registered);		
 
-				Thread.Sleep (180000);
+				Thread.Sleep (15000);
 			}
 		}
 	}
