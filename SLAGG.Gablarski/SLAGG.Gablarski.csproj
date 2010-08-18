@@ -16,6 +16,7 @@
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -28,7 +29,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -50,6 +50,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Gablarski, Version=0.12.1.971, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\Gablarski.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
@@ -75,10 +79,6 @@
     <ProjectReference Include="..\SLAGG.Plugin\SLAGG.Plugin.csproj">
       <Project>{3ED7D475-D73F-41B5-93A2-F7B49463C549}</Project>
       <Name>SLAGG.Plugin</Name>
-    </ProjectReference>
-    <ProjectReference Include="Gablarski\Gablarski.csproj">
-      <Project>{7347052B-DA5B-4CCA-AB28-3963766E3CDB}</Project>
-      <Name>Gablarski</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -114,7 +114,10 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(SolutionDir)SLAGGBot\$(OutDir)"
 xcopy /Y "$(TargetDir)$(TargetName).pdb" "$(SolutionDir)SLAGGBot\$(OutDir)"
-xcopy /Y "$(TargetDir)Gablarski.dll" "$(SolutionDir)SLAGGBot\$(OutDir)"
-xcopy /Y "$(TargetDir)Gablarski.pdb" "$(SolutionDir)SLAGGBot\$(OutDir)"</PostBuildEvent>
+xcopy /Y "$(ProjectDir)Gablarski.dll" "$(SolutionDir)SLAGGBot\$(OutDir)"
+xcopy /Y "$(ProjectDir)Gablarski.pdb" "$(SolutionDir)SLAGGBot\$(OutDir)"
+xcopy /Y "$(ProjectDir)Cadenza.dll" "$(SolutionDir)SLAGGBot\$(OutDir)"
+xcopy /Y "$(ProjectDir)Cadenza.pdb" "$(SolutionDir)SLAGGBot\$(OutDir)"
+xcopy /Y "$(ProjectDir)log4net.dll" "$(SolutionDir)SLAGGBot\$(OutDir)"</PostBuildEvent>
   </PropertyGroup>
 </Project>

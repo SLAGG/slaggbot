@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using System.Text;
 using Gablarski.Client;
 using Gablarski.Network;
 using SLAGG.Plugin;
@@ -66,9 +67,7 @@ namespace SLAGG.Gablarski
 			if ((!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb")) || this.gablarski == null)
 				return;
 
-			var users = this.gablarski.Users.ToList();
-			messanger.SendToChannel ("Gablarski: " + ConfigurationManager.AppSettings["gbDisplayServer"] + "  Players [" +
-									users.Count + "]:" + users.Select (cu => cu.Nickname).Explode (","));
+			messanger.SendToChannel (GetUsersString());
 		}
 
 		/// <summary>
@@ -81,9 +80,7 @@ namespace SLAGG.Gablarski
 			if ((!message.StartsWith ("~gablarski") && !message.StartsWith ("~gb")) || this.gablarski == null)
 				return;
 
-			var users = this.gablarski.Users.ToList();
-			messanger.SendToUser (nick, "Gablarski: " + ConfigurationManager.AppSettings["gbDisplayServer"] + "  Players [" +
-										users.Count + "]: " + users.Select (cu => cu.Nickname).Explode (", "));
+			messanger.SendToUser (nick, GetUsersString());
 		}
 
 		#endregion
@@ -91,6 +88,37 @@ namespace SLAGG.Gablarski
 		private bool justStarting = true;
 		private IMessanger messanger;
 		private GablarskiClient gablarski;
+
+		private string GetUsersString()
+		{
+			if (messanger == null || gablarski == null)
+				return String.Empty;
+
+			var users = this.gablarski.Users.ToList();
+
+			StringBuilder builder = new StringBuilder ("Gablarski: ");
+			builder.Append (ConfigurationManager.AppSettings["gbDisplayServer"]);
+			builder.AppendFormat (" Players [{0}]:", users.Count);
+
+			foreach (var channel in users.GroupBy (u => u.CurrentChannelId))
+			{
+				builder.AppendFormat ("{0}: ", this.gablarski.Channels[channel.Key].Name);
+
+				int i = 0;
+				int count = channel.Count();
+				foreach (var u in channel)
+				{
+					builder.Append (u.Nickname);
+					
+					if (i++ < count-1)
+						builder.Append (", ");
+				}
+
+				builder.Append ("; ");
+			}
+
+			return builder.ToString();
+		}
 
 		private void OnUserLoggedIn (object sender, UserEventArgs e)
 		{
@@ -112,20 +140,12 @@ namespace SLAGG.Gablarski
 		{
 			if (messanger != null && justStarting)
 				messanger.SendToChannel ("Gablarski connection rejected: " + e.Reason);
-
-			StopGablarski ();
-			Thread.Sleep (10000);
-			StartGablarski ();
 		}
 
 		private void OnDisconnected (object sender, EventArgs e)
 		{
 			if (messanger != null && justStarting)
 				messanger.SendToChannel ("Gablarski disconnected");
-			
-			StopGablarski ();
-			Thread.Sleep (10000);
-			StartGablarski ();
 		}
 
 		private void StopGablarski()
@@ -141,9 +161,9 @@ namespace SLAGG.Gablarski
 		private void StartGablarski ()
 		{
 			this.gablarski = new GablarskiClient (new NetworkClientConnection ());
-			this.gablarski.Connected += new EventHandler (OnConnected);
-			this.gablarski.ConnectionRejected += new EventHandler<RejectedConnectionEventArgs> (OnConnectionRejected);
-			this.gablarski.Disconnected += new EventHandler (OnDisconnected);
+			this.gablarski.Connected += OnConnected;
+			this.gablarski.ConnectionRejected += OnConnectionRejected;
+			this.gablarski.Disconnected += OnDisconnected;
 			this.gablarski.Users.UserJoined += OnUserLoggedIn;
 			this.gablarski.Users.UserDisconnected += OnUserDisconnected;
 			this.gablarski.Connect (ConfigurationManager.AppSettings["gbServer"], Int32.Parse (ConfigurationManager.AppSettings["gbPort"]));
