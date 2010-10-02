@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using SLAGG.Plugin;
 using MySql.Data.MySqlClient;
-using Mono.Rocks;
-
 namespace SLAGG.Events
 {
 	public class Registrations

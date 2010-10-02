@@ -47,15 +47,15 @@ namespace SLAGGBot
 		public void Start (IMessanger messanger)
 		{
 			this.messanger = messanger;
-			//this.tapping = true;
+			this.tapping = true;
 
-			//this.rnd = this.rand.Next (40);
+			this.rnd = this.rand.Next (40);
 
-			//(this.tapperThread = new Thread (this.ToeTapper)
-			//{
-			//    IsBackground = true,
-			//    Name = "Toe Tapper"
-			//}).Start();
+			(this.tapperThread = new Thread (this.ToeTapper)
+			{
+				IsBackground = true,
+				Name = "Toe Tapper"
+			}).Start();
 		}
 
 		public void Stop ()
@@ -96,18 +96,23 @@ namespace SLAGGBot
 			"Have you hugged a programmer today?",
 			"Help! I've crashed and I can't boot up!",
 			"I wonder what the big red button does....",
-			"Entropy isn't what it used to be."
+			"Entropy isn't what it used to be.",
+			"There are monkeys in the barrel.",
+			"Blargle! Who am I?",
+			"s89df89&#FY#*7yf Who am I?",
+			"Heh. Who am I?",
+			"SOOOO BAAAAAAAD!!!!! Who am I?",
 		};
 
 		private void ToeTapper ()
 		{
 			while (this.tapping)
 			{
-				if (DateTime.Now.Subtract (this.lastMessage).TotalMinutes > (30 + this.rnd))
+				if (DateTime.Now.Subtract (this.lastMessage).TotalMinutes > (60 + this.rnd))
 				{
 					this.lastMessage = DateTime.Now;
 					this.messanger.SendToChannel (this.quietComments[this.rand.Next (this.quietComments.Length - 1)]);
-					this.rnd = this.rand.Next (40);
+					this.rnd = this.rand.Next (120);
 				}
 
 				Thread.Sleep (1000);

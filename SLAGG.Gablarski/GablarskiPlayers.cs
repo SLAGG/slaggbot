@@ -98,7 +98,7 @@ namespace SLAGG.Gablarski
 
 			StringBuilder builder = new StringBuilder ("Gablarski: ");
 			builder.Append (ConfigurationManager.AppSettings["gbDisplayServer"]);
-			builder.AppendFormat (" Players [{0}]:", users.Count);
+			builder.AppendFormat (" Players [{0}]: ", users.Count);
 
 			foreach (var channel in users.GroupBy (u => u.CurrentChannelId))
 			{

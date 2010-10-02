@@ -19,16 +19,6 @@
             Gets the complexity of the audio encoding.
             </summary>
         </member>
-        <member name="P:Gablarski.Audio.AudioCodecArgs.Channels">
-            <summary>
-            Gets the number of audio channels in this source.
-            </summary>
-        </member>
-        <member name="P:Gablarski.Audio.AudioCodecArgs.Frequency">
-            <summary>
-            Gets the frequency of the audio.
-            </summary>
-        </member>
         <member name="P:Gablarski.Audio.AudioCodecArgs.FrameSize">
             <summary>
             Gets the frame size for the encoded packets.
@@ -36,10 +26,10 @@
         </member>
         <member name="M:Gablarski.CELT.CeltDecoder.Decode(System.Byte[])">
             <summary>
-            Decodes CELT compressed data to PCM.
+            Decodes CELT compressed data to LPCM.
             </summary>
             <param name="encoded">The CELT encoded data.</param>
-            <returns>The CELT decoded PCM.</returns>
+            <returns>The CELT decoded LPCM.</returns>
         </member>
         <member name="M:Gablarski.CELT.CeltDecoder.Create(Gablarski.CELT.CeltMode)">
             <summary>
@@ -55,12 +45,12 @@
         </member>
         <member name="M:Gablarski.CELT.CeltEncoder.Encode(System.Byte[],System.Int32,System.Int32@)">
             <summary>
-            Encodes PCM to the specified bitrate.
+            Encodes LPCM to the specified bitrate.
             </summary>
-            <param name="pcm">PCM data.</param>
+            <param name="pcm">LPCM data.</param>
             <param name="bitrate">Target bitrate.</param>
             <param name="length">The actual compressed length.</param>
-            <returns>CELT encoded audio of the supplied PCM.</returns>
+            <returns>CELT encoded audio of the supplied LPCM.</returns>
         </member>
         <member name="M:Gablarski.CELT.CeltEncoder.Create(Gablarski.CELT.CeltMode)">
             <summary>
@@ -136,6 +126,149 @@
             Gets the frame size used in this mode.
             </summary>
         </member>
+        <member name="T:Gablarski.Audio.IAudioReceiver">
+            <summary>
+            Contract for receiving audio and audio sources.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioReceiver.Receive(Gablarski.Audio.AudioSource,System.Byte[])">
+            <summary>
+            Forces an unencoded audio receive from <paramref name="source"/> with <paramref name="audio"/>
+            </summary>
+            <param name="audio">Unencoded audio in the <paramref name="source"/>'s format.</param>
+        </member>
+        <member name="E:Gablarski.Audio.IAudioReceiver.AudioSourceMuted">
+            <summary>
+            An audio source was muted or unmuted.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Audio.IAudioReceiver.AudioSourceStarted">
+            <summary>
+            An audio source started playing.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Audio.IAudioReceiver.AudioSourceStopped">
+            <summary>
+            An audio source stopped playing.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Audio.IAudioReceiver.ReceivedAudio">
+            <summary>
+            Audio data was received.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioSender.BeginSending(Gablarski.Audio.AudioSource)">
+            <summary>
+            Sends notifications that you're begining to send audio from <paramref name="source"/>
+            </summary>
+            <param name="source">The source to send from.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="source"/> does not belong to you.</exception>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioSender.SendAudioData(Gablarski.Audio.AudioSource,Gablarski.Messages.TargetType,System.Int32[],System.Byte[][])">
+            <summary>
+            Sends a frame of audio data to the source.
+            </summary>
+            <param name="source">The source to send from.</param>
+            <param name="targetType">The type that the <paramref name="targetIds"/> belong to.</param>
+            <param name="targetIds">The ids of the targets to send audio to.</param>
+            <param name="data">The unencoded LPCM matching <paramref name="source"/>'s attributes</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="source"/> does not belong to you.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="data"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="data"/> is empty.</exception>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioSender.EndSending(Gablarski.Audio.AudioSource)">
+            <summary>
+            Sends notifications that you're finished sending audio from <paramref name="source"/>.
+            </summary>
+            <param name="source">The source to send from.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="source"/> does not belong to you.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceHandler.Request(System.String,Gablarski.Audio.AudioFormat,System.Int16,System.Int32)">
+            <summary>
+            Requests a source.
+            </summary>
+            <param name="targetBitrate">The target bitrate to request.</param>
+            <param name="name">The user-local name of the source, used to identify the source later.</param>
+            <remarks>
+            The server may not agree with the bitrate you request, do not set up audio based on this
+            target, but on the bitrate of the source you actually receive.
+            </remarks>
+            <exception cref="T:System.ArgumentNullException"><paramref name="name"/> or <paramref name="format"/> are <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceHandler.CreateFake(System.String,Gablarski.Audio.AudioFormat,System.Int16)">
+            <summary>
+            Creates a fake audio source for playing audio locally through the Gablarski audio engine.
+            </summary>
+            <param name="name">The user-local name of the source, used to identify the source later.</param>
+            <param name="format">The format of the audio.</param>
+            <param name="frameSize">The frame size of the audio.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="name"/> or <paramref name="format"/> are <c>null</c>.</exception>
+            <remarks>
+            Fake audio sources do not trigger or show up in <see cref="E:Gablarski.Client.IClientSourceHandler.ReceivedSourceList"/> or <see cref="E:Gablarski.Client.IClientSourceHandler.ReceivedAudioSource"/>
+            </remarks>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceHandler.GetIsIgnored(Gablarski.Audio.AudioSource)">
+            <summary>
+            Gets whether or not the source is muted.
+            </summary>
+            <param name="source">The source to check.</param>
+            <returns><c>true</c> if ignored, <c>false</c> if not.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c></exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceHandler.ToggleIgnore(Gablarski.Audio.AudioSource)">
+            <summary>
+            Toggles ignore for the source.
+            </summary>
+            <param name="source">The source to ignore.</param>
+            <returns>The new state of ignore on <paramref name="source"/>.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceHandler.ToggleMute(Gablarski.Audio.AudioSource)">
+            <summary>
+            Toggles mute for the source.
+            </summary>
+            <param name="source">The source to mute.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceHandler.Reset">
+            <summary>
+            Resets the handler back to the starting state.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Client.IClientSourceHandler.ReceivedSourceList">
+            <summary>
+            A new  or updated source list has been received.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Client.IClientSourceHandler.ReceivedAudioSource">
+            <summary>
+            A new audio source has been received.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Client.IClientSourceHandler.AudioSourcesRemoved">
+            <summary>
+            An audio source was removed.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Client.IClientSourceHandler.Mine">
+            <summary>
+            Get's the current user's audio sources.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Client.ClientSourceHandler.Request(System.String,Gablarski.Audio.AudioFormat,System.Int16,System.Int32)">
+            <summary>
+            Requests a source.
+            </summary>
+            <param name="targetBitrate">The target bitrate to request.</param>
+            <param name="name">The user-local name of the source, used to identify the source later.</param>
+            <remarks>
+            The server may not agree with the bitrate you request, do not set up audio based on this
+            target, but on the bitrate of the source you actually receive.
+            </remarks>
+        </member>
         <member name="P:Gablarski.Audio.AudioEngineCaptureOptions.StartVolume">
             <summary>
             The minimum volume required to start 'talking'.
@@ -153,25 +286,25 @@
             Gets or sets a threshold time inbetween continuation volume matches to keep talking.
             </summary>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Attach(Gablarski.Audio.IPlaybackProvider,System.Collections.Generic.IEnumerable{Gablarski.Audio.AudioSource},Gablarski.Audio.AudioEnginePlaybackOptions)">
+        <member name="M:Gablarski.Audio.IAudioEngine.Attach(Gablarski.Audio.IAudioPlaybackProvider,System.Collections.Generic.IEnumerable{Gablarski.Audio.AudioSource},Gablarski.Audio.AudioEnginePlaybackOptions)">
             <summary>
             Attaches a playback provider to all <paramref name="sources"/> not already attached, skipping any ClientAudioSources.
             </summary>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Attach(Gablarski.Audio.IPlaybackProvider,Gablarski.Audio.AudioSource,Gablarski.Audio.AudioEnginePlaybackOptions)">
+        <member name="M:Gablarski.Audio.IAudioEngine.Attach(Gablarski.Audio.IAudioPlaybackProvider,Gablarski.Audio.AudioSource,Gablarski.Audio.AudioEnginePlaybackOptions)">
             <summary>
             Attaches a playback provider to be used for the given source.
             </summary>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Attach(Gablarski.Audio.ICaptureProvider,Gablarski.Audio.AudioFormat,Gablarski.Audio.AudioSource,Gablarski.Audio.AudioEngineCaptureOptions)">
+        <member name="M:Gablarski.Audio.IAudioEngine.Attach(Gablarski.Audio.IAudioCaptureProvider,Gablarski.Audio.AudioSource,Gablarski.Audio.AudioEngineCaptureOptions)">
             <summary>
-            Starts a capture with the given <paramref name="capture"/> pumped to the <paramref name="source"/> with the given <paramref name="options"/>.
+            Starts a capture with the given <paramref name="audioCapture"/> pumped to the <paramref name="source"/> with the given <paramref name="options"/>.
             </summary>
-            <param name="capture">The provider to pump the audio from. (If the device is not preselected, the default device will be used.)</param>
-            <param name="format">The format to capture audio in.</param>
+            <param name="audioCapture">The provider to pump the audio from. (If the device is not preselected, the default device will be used.)</param>
             <param name="source">The audio source to pump the audio to.</param>
             <param name="options">Capturing options.</param>
-            <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> or <paramref name="source"/> or <paramref name="options"/> are <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="audioCapture"/> or <paramref name="source"/> or <paramref name="options"/> are <c>null</c>.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="source"/> is a local source.</exception>
         </member>
         <member name="M:Gablarski.Audio.IAudioEngine.Update(Gablarski.Audio.AudioSource,Gablarski.Audio.AudioEngineCaptureOptions)">
             <summary>
@@ -191,7 +324,7 @@
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> or <paramref name="channels"/> are <c>null</c>.</exception>
             <exception cref="T:System.ArgumentException"><paramref name="source"/> is not attached.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Update(Gablarski.Audio.AudioSource,System.Collections.Generic.IEnumerable{Gablarski.UserInfo})">
+        <member name="M:Gablarski.Audio.IAudioEngine.Update(Gablarski.Audio.AudioSource,System.Collections.Generic.IEnumerable{Gablarski.IUserInfo})">
             <summary>
             Updates <paramref name="source"/> with new capture targets.
             </summary>
@@ -209,7 +342,7 @@
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> or <paramref name="options"/> are <c>null</c>.</exception>
             <exception cref="T:System.ArgumentException"><paramref name="source"/> is not attached.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Detach(Gablarski.Audio.ICaptureProvider)">
+        <member name="M:Gablarski.Audio.IAudioEngine.Detach(Gablarski.Audio.IAudioCaptureProvider)">
             <summary>
             Stops any captures on the given provider.
             </summary>
@@ -217,7 +350,7 @@
             <returns><c>true</c> if there were any captures for the <paramref name="provider"/>.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="provider"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Detach(Gablarski.Audio.IPlaybackProvider)">
+        <member name="M:Gablarski.Audio.IAudioEngine.Detach(Gablarski.Audio.IAudioPlaybackProvider)">
             <summary>
             Stops any playbacks on the given provider.
             </summary>
@@ -243,11 +376,11 @@
             Unmutes all capture, not including those muted individually.
             </summary>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Mute(Gablarski.Audio.ICaptureProvider)">
-            <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> is <c>null</c>.</exception>
+        <member name="M:Gablarski.Audio.IAudioEngine.Mute(Gablarski.Audio.IAudioCaptureProvider)">
+            <exception cref="T:System.ArgumentNullException"><paramref name="audioCapture"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Unmute(Gablarski.Audio.ICaptureProvider)">
-            <exception cref="T:System.ArgumentNullException"><paramref name="capture"/> is <c>null</c>.</exception>
+        <member name="M:Gablarski.Audio.IAudioEngine.Unmute(Gablarski.Audio.IAudioCaptureProvider)">
+            <exception cref="T:System.ArgumentNullException"><paramref name="audioCapture"/> is <c>null</c>.</exception>
         </member>
         <member name="M:Gablarski.Audio.IAudioEngine.MutePlayback">
             <summary>
@@ -259,11 +392,11 @@
             Unmutes all playback, not including those muted individually.
             </summary>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Mute(Gablarski.Audio.IPlaybackProvider)">
-            <exception cref="T:System.ArgumentNullException"><paramref name="playback"/> is <c>null</c>.</exception>
+        <member name="M:Gablarski.Audio.IAudioEngine.Mute(Gablarski.Audio.IAudioPlaybackProvider)">
+            <exception cref="T:System.ArgumentNullException"><paramref name="audioPlayback"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.Unmute(Gablarski.Audio.IPlaybackProvider)">
-            <exception cref="T:System.ArgumentNullException"><paramref name="playback"/> is <c>null</c>.</exception>
+        <member name="M:Gablarski.Audio.IAudioEngine.Unmute(Gablarski.Audio.IAudioPlaybackProvider)">
+            <exception cref="T:System.ArgumentNullException"><paramref name="audioPlayback"/> is <c>null</c>.</exception>
         </member>
         <member name="M:Gablarski.Audio.IAudioEngine.Start">
             <summary>
@@ -284,8 +417,13 @@
             <param name="channels"></param>
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> or <paramref name="channels"/> are <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IAudioEngine.BeginCapture(Gablarski.Audio.AudioSource,System.Collections.Generic.IEnumerable{Gablarski.UserInfo})">
+        <member name="M:Gablarski.Audio.IAudioEngine.BeginCapture(Gablarski.Audio.AudioSource,System.Collections.Generic.IEnumerable{Gablarski.IUserInfo})">
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> or <paramref name="users"/> are <c>null</c>.</exception>
+        </member>
+        <member name="E:Gablarski.Audio.IAudioEngine.SourceFinished">
+            <summary>
+            Raised when a source finishes playing.
+            </summary>
         </member>
         <member name="P:Gablarski.Audio.IAudioEngine.IsRunning">
             <summary>
@@ -309,31 +447,6 @@
             Gets or sets the audio sender.
             </summary>
             <exception cref="T:System.InvalidOperationException"><see cref="P:Gablarski.Audio.IAudioEngine.IsRunning"/> is <c>true</c>.</exception>
-        </member>
-        <member name="T:Gablarski.Audio.IAudioReceiver">
-            <summary>
-            Contract for receiving audio and audio sources.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Audio.IAudioReceiver.AudioSourceMuted">
-            <summary>
-            An audio source was muted or unmuted.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Audio.IAudioReceiver.AudioSourceStarted">
-            <summary>
-            An audio source started playing.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Audio.IAudioReceiver.AudioSourceStopped">
-            <summary>
-            An audio source stopped playing.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Audio.IAudioReceiver.ReceivedAudio">
-            <summary>
-            Audio data was received.
-            </summary>
         </member>
         <member name="P:Gablarski.Audio.AudioSourceEventArgs.Source">
             <summary>
@@ -380,6 +493,24 @@
             Gets or sets the probability required for the VAD to stay in the voice state (0-100)
             </summary>
         </member>
+        <member name="M:Gablarski.BinaryValueReader.Read">
+            <exception cref="T:System.NotSupportedException">Always.</exception>
+        </member>
+        <member name="M:Gablarski.BinaryValueReader.Read(System.Char[],System.Int32,System.Int32)">
+            <exception cref="T:System.NotSupportedException">Always.</exception>
+        </member>
+        <member name="M:Gablarski.BinaryValueReader.PeekChar">
+            <exception cref="T:System.NotSupportedException">Always.</exception>
+        </member>
+        <member name="P:Gablarski.BinaryValueReader.BaseStream">
+            <exception cref="T:System.NotSupportedException">Always.</exception>
+        </member>
+        <member name="M:Gablarski.BinaryValueWriter.Seek(System.Int32,System.IO.SeekOrigin)">
+            <exception cref="T:System.NotSupportedException">Always.</exception>
+        </member>
+        <member name="P:Gablarski.BinaryValueWriter.BaseStream">
+            <exception cref="T:System.NotSupportedException">Always.</exception>
+        </member>
         <member name="M:Gablarski.ByteArrayValueReader.Dispose">
             <summary>
             Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -396,35 +527,6 @@
             Gets or sets the audio receiver.
             </summary>
         </member>
-        <member name="M:Gablarski.Audio.IAudioSender.BeginSending(Gablarski.Audio.AudioSource)">
-            <summary>
-            Sends notifications that you're begining to send audio from <paramref name="source"/>
-            </summary>
-            <param name="source">The source to send from.</param>
-            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="source"/> does not belong to you.</exception>
-        </member>
-        <member name="M:Gablarski.Audio.IAudioSender.SendAudioData(Gablarski.Audio.AudioSource,Gablarski.Messages.TargetType,System.Int32[],System.Byte[])">
-            <summary>
-            Sends a frame of audio data to the source.
-            </summary>
-            <param name="source">The source to send from.</param>
-            <param name="targetType">The type that the <paramref name="targetIds"/> belong to.</param>
-            <param name="targetIds">The ids of the targets to send audio to.</param>
-            <param name="frame">The unencoded PCM matching <paramref name="source"/>'s attributes.</param>
-            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="source"/> does not belong to you.</exception>
-            <exception cref="T:System.ArgumentNullException"><paramref name="frame"/> is <c>null</c>.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="frame"/> is empty.</exception>
-        </member>
-        <member name="M:Gablarski.Audio.IAudioSender.EndSending(Gablarski.Audio.AudioSource)">
-            <summary>
-            Sends notifications that you're finished sending audio from <paramref name="source"/>.
-            </summary>
-            <param name="source">The source to send from.</param>
-            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
-            <exception cref="T:System.ArgumentException"><paramref name="source"/> does not belong to you.</exception>
-        </member>
         <member name="T:Gablarski.Client.IClientSourceManager">
             <summary>
             Contract for client-side AudioSource state managers.
@@ -440,13 +542,15 @@
             Removes the audio <paramref name="source"/>.
             </summary>
             <param name="source">The source to remove.</param>
+            <returns><c>true</c> if the source was found and removed, <c>false otherwise.</c></returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.ISourceManager.Remove(Gablarski.UserInfo)">
+        <member name="M:Gablarski.ISourceManager.Remove(Gablarski.IUserInfo)">
             <summary>
             Removes all audio sources for <paramref name="user"/>.
             </summary>
             <param name="user">The user to remove all sources for.</param>
+            <returns><c>true</c> if any sources belonging to <paramref name="user"/> were found.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
         <member name="M:Gablarski.ISourceManager.ToggleMute(Gablarski.Audio.AudioSource)">
@@ -457,7 +561,12 @@
             <returns><c>true</c> if <paramref name="source"/> was muted, <c>false</c> if not or not found.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         </member>
-        <member name="P:Gablarski.ISourceManager.Item(Gablarski.UserInfo)">
+        <member name="M:Gablarski.ISourceManager.Clear">
+            <summary>
+            Clears the manager of all sources.
+            </summary>
+        </member>
+        <member name="P:Gablarski.ISourceManager.Item(Gablarski.IUserInfo)">
             <summary>
             Gets the audio sources owned by <paramref name="user"/>.
             </summary>
@@ -471,27 +580,50 @@
             <param name="source"></param>
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Client.IClientUserHandler.GetIsIgnored(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientSourceManager.Update(System.Collections.Generic.IEnumerable{Gablarski.Audio.AudioSource})">
             <summary>
-            Gets whether the user has been ignored by the current user.
+            Updates the manager with a new list of sources.
+            </summary>
+            <param name="sources">The new list of sources.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="sources"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceManager.Update(Gablarski.Audio.AudioSource)">
+            <summary>
+            Updates the manager with new state for a source.
+            </summary>
+            <param name="source">The source to update.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceManager.GetIsIgnored(Gablarski.Audio.AudioSource)">
+            <summary>
+            Gets whether the source is ignored or not..
+            </summary>
+            <param name="source">The source to check.</param>
+            <returns><c>true</c> if the source is ignored, <c>false</c> if it's not ignored or is unknown.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientSourceManager.ToggleIgnore(Gablarski.Audio.AudioSource)">
+            <summary>
+            Toggles ignore for the source.
+            </summary>
+            <param name="source">The source to ignore.</param>
+            <returns>The new state of ignore on <paramref name="source"/>, or <c>false</c> if it's .</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientUserHandler.GetIsIgnored(Gablarski.IUserInfo)">
+            <summary>
+            Gets whether or not <paramref name="user"/> is currently ignored.
             </summary>
             <param name="user">The user to check.</param>
-            <returns><c>true</c> if the user is ignored, <c>false</c> if not.</returns>
+            <returns><c>true</c> if ignored, <c>false</c> if not.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Client.IClientUserHandler.ToggleIgnore(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientUserHandler.ToggleIgnore(Gablarski.IUserInfo)">
             <summary>
             Toggles ignore on <paramref name="user"/>.
             </summary>
             <param name="user">The user to ignore or unignore.</param>
             <returns><c>true</c> if the user is now ignored, <c>false</c> if the user is now unignored.</returns>
-        </member>
-        <member name="M:Gablarski.Client.IClientUserHandler.TryGetUser(System.Int32,Gablarski.UserInfo@)">
-            <summary>
-            Tries to get <parmref name="user"/> from <paramref name="userId"/>.
-            </summary>
-            <param name="userId">The id of the user to try to get.</param>
-            <param name="user">The user, if found.</param>
-            <returns><c>true</c> if the user was found, <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Gablarski.Client.IClientUserHandler.GetUsersInChannel(System.Int32)">
             <summary>
@@ -502,14 +634,46 @@
             A <see cref="T:System.Collections.Generic.IEnumerable`1"/> of the users in the channel. <c>null</c> if the channel was not found.
             </returns>
         </member>
-        <member name="M:Gablarski.Client.IClientUserHandler.Move(Gablarski.UserInfo,Gablarski.ChannelInfo)">
+        <member name="M:Gablarski.Client.IClientUserHandler.ApproveRegistration(System.String)">
+            <summary>
+            Approves the registration of <paramref name="username"/>.
+            </summary>
+            <param name="username">The username to approve registration for.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is <c>null</c>.</exception>
+            <exception cref="T:System.NotSupportedException">The server does not support either registration or approvals.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientUserHandler.ApproveRegistration(Gablarski.IUserInfo)">
+            <summary>
+            Pre-approves the registration of <paramref name="user"/>.
+            </summary>
+            <param name="user">The user to pre-approve for registration.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
+            <exception cref="T:System.NotSupportedException">The server does not support either pre-registration or approvals.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientUserHandler.RejectRegistration(System.String)">
+            <summary>
+            Rejects the registration of <paramref name="username"/>.
+            </summary>
+            <param name="username">The username to reject registration for.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is <c>null</c>.</exception>
+            <exception cref="T:System.NotSupportedException">The server does not support either registration or approvals.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientUserHandler.Move(Gablarski.IUserInfo,Gablarski.ChannelInfo)">
             <summary>
             Requests to move <paramref name="user"/> to <paramref name="targetChannel"/>.
             </summary>
             <param name="user">The user to move.</param>
             <param name="targetChannel">The target channel to move the user to.</param>
         </member>
-        <member name="M:Gablarski.Client.IClientUserHandler.ToggleMute(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientUserHandler.Kick(Gablarski.IUser,System.Boolean)">
+            <summary>
+            Kicks a user to the default channel or from the server.
+            </summary>
+            <param name="user">The user to kick.</param>
+            <param name="fromServer">Whether to kick the user from the server or just from the default channel.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientUserHandler.ToggleMute(Gablarski.IUserInfo)">
             <summary>
             Attempts to toggle mute on <paramref name="user"/>.
             </summary>
@@ -525,7 +689,7 @@
             Resets the handler to it's initial state.
             </summary>
             <remarks>
-            Integraters shouldn't invoke this directly, it's for the <see cref="T:Gablarski.Client.GablarskiClient"/> to do
+            Integrators shouldn't invoke this directly, it's for the <see cref="T:Gablarski.Client.GablarskiClient"/> to do
             when disconnecting.
             </remarks>
         </member>
@@ -546,7 +710,12 @@
         </member>
         <member name="E:Gablarski.Client.IClientUserHandler.UserMuted">
             <summary>
-            A user was muted or ignored.
+            A user was muted.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Client.IClientUserHandler.UserIgnored">
+            <summary>
+            A user was ignored.
             </summary>
         </member>
         <member name="E:Gablarski.Client.IClientUserHandler.UserUpdated">
@@ -559,10 +728,98 @@
             A user has changed channels.
             </summary>
         </member>
+        <member name="E:Gablarski.Client.IClientUserHandler.UserKickedFromChannel">
+            <summary>
+            A user was kicked from their current channel to the default channel.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Client.IClientUserHandler.UserKickedFromServer">
+            <summary>
+            A user was kicked from the server.
+            </summary>
+        </member>
         <member name="P:Gablarski.Client.IClientUserHandler.Current">
             <summary>
             Gets the current user.
             </summary>
+        </member>
+        <member name="P:Gablarski.IUser.UserId">
+            <summary>
+            Gets the user's numeric id.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUser.Username">
+            <summary>
+            Gets the user's username.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUserInfo.IsRegistered">
+            <summary>
+            Gets whether the user is registered or is a guest.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUserInfo.CurrentChannelId">
+            <summary>
+            Gets the user's current channel id.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUserInfo.Nickname">
+            <summary>
+            Gets the user's nickname.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUserInfo.Phonetic">
+            <summary>
+            Gets the user's phonetic.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUserInfo.Status">
+            <summary>
+            Gets the user's current 
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUserInfo.IsMuted">
+            <summary>
+            Gets whether the user is muted or not.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IUserInfo.Comment">
+            <summary>
+            Gets the user's current comment.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Client.ICurrentUserHandler.Login(System.String,System.String)">
+            <summary>
+            Logs into the connected server
+            </summary>
+            <param name="username">The username to log in with.</param>
+            <param name="password">The password to log in with.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is null or empty.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="password"/> is null.</exception>
+        </member>
+        <member name="M:Gablarski.Client.ICurrentUserHandler.Join(System.String,System.String)">
+            <summary>
+            Joins the connected server with the specified nickname and password.
+            </summary>
+            <param name="nickname">The nickname to use when in the server.</param>
+            <param name="serverPassword">The password to join the server.</param>
+        </member>
+        <member name="M:Gablarski.Client.ICurrentUserHandler.Join(System.String,System.String,System.String)">
+            <summary>
+            Joins the connected server with the specified nickname and password.
+            </summary>
+            <param name="nickname">The nickname to use when in the server.</param>
+            <param name="phonetic">The phonetic spelling for the nickname.</param>
+            <param name="serverPassword">The password to join the server.</param>
+        </member>
+        <member name="M:Gablarski.Client.ICurrentUserHandler.Register(System.String,System.String)">
+            <summary>
+            Sends a registration to the server.
+            </summary>
+            <param name="username">The username to register with.</param>
+            <param name="password">The password to register with.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> or <paramref name="password"/> is null.</exception>
+            <exception cref="T:System.ArgumentException"><paramref name="username"/> or <paramref name="password"/> is empty.</exception>
         </member>
         <member name="M:Gablarski.IConnectionHandler.Send(Gablarski.Messages.MessageBase,System.Func{Gablarski.IConnection,System.Boolean})">
             <exception cref="T:System.ArgumentNullException"><paramref name="message"/> or <paramref name="predicate"/> is <c>null</c>.</exception>
@@ -572,7 +829,7 @@
             Sends <paramref name="message"/> to all connections.
             </summary>
         </member>
-        <member name="M:Gablarski.Client.IClientUserManager.Join(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientUserManager.Join(Gablarski.IUserInfo)">
             <summary>
             Joins <paramref name="user"/>.
             </summary>
@@ -581,7 +838,7 @@
             </param>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Client.IClientUserManager.GetIsJoined(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientUserManager.GetIsJoined(Gablarski.IUserInfo)">
             <summary>
             Gets whether or not <paramref name="user"/> is currently in the manager.
             </summary>
@@ -589,33 +846,33 @@
             <returns><c>true</c> if <paramref name="user"/> is in the manager, <c>false</c> otherwise.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Client.IClientUserManager.Depart(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientUserManager.GetIsIgnored(Gablarski.IUserInfo)">
+            <summary>
+            Gets whether or not <paramref name="user"/> is currently ignored.
+            </summary>
+            <param name="user">The user to check.</param>
+            <returns><c>true</c> if ignored, <c>false</c> if not.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientUserManager.Depart(Gablarski.IUserInfo)">
             <summary>
             Departs a user.
             </summary>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c></exception>
         </member>
-        <member name="M:Gablarski.Client.IClientUserManager.Update(System.Collections.Generic.IEnumerable{Gablarski.UserInfo})">
+        <member name="M:Gablarski.Client.IClientUserManager.Update(System.Collections.Generic.IEnumerable{Gablarski.IUserInfo})">
             <summary>
             Updates the manager using <paramref name="users"/> as the new list of users.
             </summary>
             <param name="users">The new list of users.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="users"/> is <c>null</c></exception>
         </member>
-        <member name="M:Gablarski.Client.IClientUserManager.Update(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientUserManager.Update(Gablarski.IUserInfo)">
             <summary>
             Updates the user internally to match the properties of <paramref name="user"/>.
             </summary>
             <param name="user">The new set of properties for the user.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
-        </member>
-        <member name="M:Gablarski.Client.IClientUserManager.TryGetUser(System.Int32,Gablarski.UserInfo@)">
-            <summary>
-            Tries to get <parmref name="user"/> from <paramref name="userId"/>.
-            </summary>
-            <param name="userId">The id of the user to try to get.</param>
-            <param name="user">The user, if found.</param>
-            <returns><c>true</c> if the user was found, <c>false</c> otherwise.</returns>
         </member>
         <member name="M:Gablarski.Client.IClientUserManager.GetUsersInChannel(System.Int32)">
             <summary>
@@ -626,12 +883,25 @@
             A <see cref="T:System.Collections.Generic.IEnumerable`1"/> of the users in the channel. <c>null</c> if the channel was not found.
             </returns>
         </member>
-        <member name="M:Gablarski.Client.IClientUserManager.ToggleMute(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Client.IClientUserManager.ToggleMute(Gablarski.IUserInfo)">
             <summary>
             Toggles mute on <paramref name="user"/>.
             </summary>
-            <param name="user"></param>
+            <param name="user">The user to toggle mute for.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Client.IClientUserManager.ToggleIgnore(Gablarski.IUserInfo)">
+            <summary>
+            Toggles ignore on <paramref name="user"/>.
+            </summary>
+            <param name="user">The user to toggle ignore for.</param>
+            <returns>The new ignore state.</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
+        </member>
+        <member name="P:Gablarski.Client.IClientUserManager.SyncRoot">
+            <summary>
+            Gets the synchronization root for the manager.
+            </summary>
         </member>
         <member name="T:Gablarski.Messages.ServerMessage">
             <summary>
@@ -652,59 +922,6 @@
             so this message will be used for any that don't but
             still need permissions.
             </remarks>
-        </member>
-        <member name="M:Gablarski.Audio.IAudioDeviceProvider.GetDevices">
-            <summary>
-            Gets a listing of devices for this provider.
-            </summary>
-            <returns>A listing of devices to choose from.</returns>
-        </member>
-        <member name="P:Gablarski.Audio.IAudioDeviceProvider.DefaultDevice">
-            <summary>
-            Gets the default device for this provider.
-            </summary>
-        </member>
-        <member name="M:Gablarski.Audio.ICaptureProvider.BeginCapture(Gablarski.Audio.AudioFormat)">
-            <summary>
-            Begins a capture.
-            </summary>
-            <exception cref="T:System.InvalidOperationException">If <see cref="P:Gablarski.Audio.ICaptureProvider.Device"/> is null.</exception>
-        </member>
-        <member name="M:Gablarski.Audio.ICaptureProvider.EndCapture">
-            <summary>
-            Ends a capture.
-            </summary>
-            <exception cref="T:System.InvalidOperationException">If <see cref="P:Gablarski.Audio.ICaptureProvider.Device"/> is null.</exception>
-        </member>
-        <member name="M:Gablarski.Audio.ICaptureProvider.ReadSamples">
-            <summary>
-            Reads all available samples from the provider.
-            </summary>
-            <returns>The samples</returns>
-            <exception cref="T:System.InvalidOperationException">If <see cref="P:Gablarski.Audio.ICaptureProvider.Device"/> is null.</exception>
-        </member>
-        <member name="M:Gablarski.Audio.ICaptureProvider.ReadSamples(System.Int32)">
-            <exception cref="T:System.InvalidOperationException">If <see cref="P:Gablarski.Audio.ICaptureProvider.Device"/> is null.</exception>
-        </member>
-        <member name="P:Gablarski.Audio.ICaptureProvider.Device">
-            <summary>
-            Gets or sets the device to capture from.
-            </summary>
-        </member>
-        <member name="P:Gablarski.Audio.ICaptureProvider.IsCapturing">
-            <summary>
-            Gets whether or not this provider is currently capturing audio.
-            </summary>
-        </member>
-        <member name="P:Gablarski.Audio.ICaptureProvider.CanCaptureStereo">
-            <summary>
-            Gets whether or not this provider can capture stereo.
-            </summary>
-        </member>
-        <member name="P:Gablarski.Audio.ICaptureProvider.AvailableSampleCount">
-            <summary>
-            Number of samples available to be read.
-            </summary>
         </member>
         <member name="P:Gablarski.ChannelInfo.ChannelId">
             <summary>
@@ -829,6 +1046,14 @@
             Represents a gablarski client context.
             </summary>
         </member>
+        <member name="M:Gablarski.Client.IClientContext.RegisterMessageHandler(Gablarski.Messages.ServerMessageType,System.Action{Gablarski.MessageReceivedEventArgs})">
+            <summary>
+            Registers a message handler.
+            </summary>
+            <param name="messageType">The message type to register a handler for.</param>
+            <param name="handler">The handler to register for the message type.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="handler"/> is <c>null</c>.</exception>
+        </member>
         <member name="P:Gablarski.Client.IClientContext.Connection">
             <summary>
             Gets the connection associated with this client.
@@ -846,12 +1071,12 @@
         </member>
         <member name="P:Gablarski.Client.IClientContext.Sources">
             <summary>
-            Gets the sources in this context.
+            Gets the source handler associated with this context.
             </summary>
         </member>
         <member name="P:Gablarski.Client.IClientContext.Users">
             <summary>
-            Gets the user manager associated with this context.
+            Gets the user handler associated with this context.
             </summary>
         </member>
         <member name="P:Gablarski.Client.IClientContext.CurrentUser">
@@ -869,6 +1094,15 @@
             <exception cref="T:System.ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
             <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="port"/> is outside the acceptable port range.</exception>
             <exception cref="T:System.Net.Sockets.SocketException">Hostname could not be resolved.</exception>
+        </member>
+        <member name="M:Gablarski.Client.GablarskiClient.RegisterMessageHandler(Gablarski.Messages.ServerMessageType,System.Action{Gablarski.MessageReceivedEventArgs})">
+            <summary>
+            Registers a message handler.
+            </summary>
+            <param name="messageType">The message type to register a handler for.</param>
+            <param name="handler">The handler to register for the message type.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="handler"/> is <c>null</c>.</exception>
+            <exception cref="T:System.InvalidOperationException"><paramref name="messageType"/> already has a registered handler.</exception>
         </member>
         <member name="M:Gablarski.Client.GablarskiClient.Disconnect">
             <summary>
@@ -952,7 +1186,7 @@
         </member>
         <member name="P:Gablarski.Client.GablarskiClient.ReconnectAttemptFrequency">
             <summary>
-            Gets or sets the frequency (ms) at which to attempt reconnection. (5s default).
+            Gets or sets the frequency (ms) at which to attempt reconnection. (2s default).
             </summary>
         </member>
         <member name="P:Gablarski.Client.GablarskiClient.VerboseTracing">
@@ -970,69 +1204,134 @@
             Gets the reason for rejecting the connection.
             </summary>
         </member>
+        <member name="M:Gablarski.Audio.IAudioDeviceProvider.GetDevices">
+            <summary>
+            Gets a listing of devices for this provider.
+            </summary>
+            <returns>A listing of devices to choose from.</returns>
+        </member>
+        <member name="P:Gablarski.Audio.IAudioDeviceProvider.DefaultDevice">
+            <summary>
+            Gets the default device for this provider.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioCaptureProvider.BeginCapture(Gablarski.Audio.AudioFormat,System.Int32)">
+            <summary>
+            Begins a capture.
+            </summary>
+            <param name="format">The format to capture in.</param>
+            <param name="frameSize">The size of frames.</param>
+            <exception cref="T:System.InvalidOperationException">If <see cref="P:Gablarski.Audio.IAudioCaptureProvider.Device"/> is null.</exception>
+            <exception cref="T:System.NotSupportedException"><paramref name="format"/> is an unsupported format.</exception>
+            <remarks>
+            <paramref name="frameSize"/> may affect how often <see cref="E:Gablarski.Audio.IAudioCaptureProvider.SamplesAvailable"/> is raised.
+            </remarks>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioCaptureProvider.ReadSamples(System.Int32)">
+            <summary>
+            Reads <paramref name="count"/> samples, waits if neccessary.
+            </summary>
+            <param name="count">The number of samples to read.</param>
+            <returns>A byte array of the samples.</returns>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioCaptureProvider.EndCapture">
+            <summary>
+            Ends a capture.
+            </summary>
+            <exception cref="T:System.InvalidOperationException">If <see cref="P:Gablarski.Audio.IAudioCaptureProvider.Device"/> is null.</exception>
+        </member>
+        <member name="P:Gablarski.Audio.IAudioCaptureProvider.Device">
+            <summary>
+            Gets or sets the device to capture from.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Audio.IAudioCaptureProvider.IsCapturing">
+            <summary>
+            Gets whether or not this provider is currently capturing audio.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Audio.IAudioCaptureProvider.SupportedFormats">
+            <summary>
+            Gets an enumeration of supported formats.
+            </summary>
+        </member>
+        <member name="T:Gablarski.Audio.SamplesAvailableEventArgs">
+            <summary>
+            Provides data for a samples available event.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Audio.SamplesAvailableEventArgs.#ctor(Gablarski.Audio.IAudioCaptureProvider,System.Int32)">
+            <summary>
+            Constructs a new <see cref="T:Gablarski.Audio.SamplesAvailableEventArgs"/>
+            </summary>
+            <param name="provider">The provider samples are available from.</param>
+            <param name="available">The number of available samples.</param>
+        </member>
+        <member name="P:Gablarski.Audio.SamplesAvailableEventArgs.Available">
+            <summary>
+            Gets the number of available samples.
+            </summary>
+        </member>
         <member name="P:Gablarski.Audio.IAudioDevice.Name">
             <summary>
             Gets the unique name identifying this device.
             </summary>
         </member>
-        <member name="M:Gablarski.Audio.IPlaybackProvider.Open">
+        <member name="M:Gablarski.Audio.IAudioPlaybackProvider.SetGain(Gablarski.Audio.AudioSource,System.Single)">
+            <summary>
+            Sets the gain for <paramref name="source"/>.
+            </summary>
+            <param name="source">The source to set the gain for.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Audio.IAudioPlaybackProvider.Open">
             <summary>
             Opens the playback provider doing any one time initialization required.
             </summary>
-            <exception cref="T:System.InvalidOperationException"><see cref="P:Gablarski.Audio.IPlaybackProvider.Device"/> is not set.</exception>
+            <exception cref="T:System.InvalidOperationException"><see cref="P:Gablarski.Audio.IAudioPlaybackProvider.Device"/> is not set.</exception>
+            <exception cref="T:System.ObjectDisposedException">This playback provider has already been disposed.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IPlaybackProvider.QueuePlayback(Gablarski.Audio.AudioSource,System.Byte[])">
+        <member name="M:Gablarski.Audio.IAudioPlaybackProvider.QueuePlayback(Gablarski.Audio.AudioSource,System.Byte[])">
             <summary>
-            Queues PCM <paramref name="data"/> to be played back, owned by <paramref name="source"/>.
+            Queues audio <paramref name="data"/> to be played back, owned by <paramref name="source"/>.
             </summary>
             <param name="source">The <see cref="T:Gablarski.Audio.AudioSource"/> the audio came from.</param>
-            <param name="data">PCM data.</param>
+            <param name="data">LPCM data.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This playback provider has already been disposed.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IPlaybackProvider.FreeSource(Gablarski.Audio.AudioSource)">
+        <member name="M:Gablarski.Audio.IAudioPlaybackProvider.FreeSource(Gablarski.Audio.AudioSource)">
             <summary>
             Frees any internal resources associated with the <paramref name="source"/>.
             </summary>
             <param name="source">The source to free any resources for.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
+            <exception cref="T:System.ObjectDisposedException">This playback provider has already been disposed.</exception>
         </member>
-        <member name="M:Gablarski.Audio.IPlaybackProvider.Tick">
-            <summary>
-            Called each tick of the audio engine.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Audio.IPlaybackProvider.SourceFinished">
+        <member name="E:Gablarski.Audio.IAudioPlaybackProvider.SourceFinished">
             <summary>
             Fired when a source finishes playing.
             </summary>
+            <exception cref="T:System.ObjectDisposedException">This playback provider has already been disposed.</exception>
         </member>
-        <member name="P:Gablarski.Audio.IPlaybackProvider.Device">
+        <member name="P:Gablarski.Audio.IAudioPlaybackProvider.Device">
             <summary>
             Gets or sets the playback device.
             </summary>
+            <exception cref="T:System.ObjectDisposedException">This playback provider has already been disposed.</exception>
         </member>
-        <member name="P:Gablarski.Audio.IPlaybackProvider.Gain">
+        <member name="P:Gablarski.Audio.IAudioPlaybackProvider.Gain">
             <summary>
             Overall gain.
             </summary>
+            <exception cref="T:System.ObjectDisposedException">This playback provider has already been disposed.</exception>
         </member>
-        <member name="M:Gablarski.Audio.PlaybackProviderExtensions.Open(Gablarski.Audio.IPlaybackProvider,Gablarski.Audio.IAudioDevice)">
+        <member name="M:Gablarski.Audio.PlaybackProviderExtensions.Open(Gablarski.Audio.IAudioPlaybackProvider,Gablarski.Audio.IAudioDevice)">
             <summary>
             Opens the provider with <paramref name="device"/>.
             </summary>
             <param name="device">The device to play audio on.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="device"/> is <c>null</c>.</exception>
-        </member>
-        <member name="M:Gablarski.Audio.SourceFinishedEventArgs.#ctor(Gablarski.Audio.AudioSource)">
-            <summary>
-            Initializes a new instance of <see cref="T:Gablarski.Audio.SourceFinishedEventArgs"/>
-            </summary>
-            <param name="source"></param>
-        </member>
-        <member name="P:Gablarski.Audio.SourceFinishedEventArgs.Source">
-            <summary>
-            Gets the source that finished playing.
-            </summary>
         </member>
         <member name="T:Gablarski.GenericResult">
             <summary>
@@ -1083,7 +1382,12 @@
         </member>
         <member name="M:Gablarski.IConnection.Disconnect">
             <summary>
-            Closes the connection.
+            Closes the connection immediately.
+            </summary>
+        </member>
+        <member name="M:Gablarski.IConnection.DisconnectAsync">
+            <summary>
+            Closes the connection as soon as current messages are sent. Any new messages will be ignored.
             </summary>
         </member>
         <member name="P:Gablarski.IConnection.IsConnected">
@@ -1094,6 +1398,16 @@
         <member name="P:Gablarski.IConnection.IsAsync">
             <summary>
             Gets whether the connection is asynchronous.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IConnection.Encryption">
+            <summary>
+            Sets the encryptor for the connection.
+            </summary>
+        </member>
+        <member name="P:Gablarski.IConnection.Decryption">
+            <summary>
+            Sets the decryptor for the connection.
             </summary>
         </member>
         <member name="E:Gablarski.IConnection.MessageReceived">
@@ -1136,7 +1450,7 @@
         </member>
         <member name="T:Gablarski.ConnectionEventArgs">
             <summary>
-            Provides data for the <see cref="!:IConnectionProvider.ConnectionMade"/> event.
+            Provides data for various connection-based events.
             </summary>
         </member>
         <member name="M:Gablarski.ConnectionEventArgs.#ctor(Gablarski.IConnection)">
@@ -1214,6 +1528,11 @@
             on a transport level and not actually sent the ConnectMessage.
             </remarks>
         </member>
+        <member name="F:Gablarski.LoginResultState.FailedBanned">
+            <summary>
+            Failed because you have been banned.
+            </summary>
+        </member>
         <member name="T:Gablarski.LoginResult">
             <summary>
             Provides results for an attempted login.
@@ -1237,6 +1556,11 @@
         <member name="P:Gablarski.Messages.ChannelListMessage.Result">
             <summary>
             Gets or sets the result of the request.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Messages.ChannelListMessage.DefaultChannelId">
+            <summary>
+            Gets or sets the default channel in the message, <c>null</c> if request failed.
             </summary>
         </member>
         <member name="P:Gablarski.Messages.ChannelListMessage.Channels">
@@ -1292,6 +1616,11 @@
         <member name="F:Gablarski.Messages.ConnectionRejectedReason.CouldNotConnect">
             <summary>
             The client could not connect to the server.
+            </summary>
+        </member>
+        <member name="F:Gablarski.Messages.ConnectionRejectedReason.BanHammer">
+            <summary>
+            You were hit with a ban hammer.
             </summary>
         </member>
         <member name="F:Gablarski.Messages.SourceResult.NewSource">
@@ -1404,6 +1733,11 @@
             The client has succesfully connected to the end point.
             </summary>
         </member>
+        <member name="P:Gablarski.Server.IServerConnection.IPAddress">
+            <summary>
+            The IPAddress of the actual client.
+            </summary>
+        </member>
         <member name="M:Gablarski.Server.IConnectionProvider.SendConnectionlessMessage(Gablarski.Messages.MessageBase,System.Net.EndPoint)">
             <summary>
             Sends a connectionless <paramref name="message"/> to the <paramref name="endpoint"/>.
@@ -1443,6 +1777,28 @@
             </summary>
             <filterpriority>2</filterpriority>
         </member>
+        <member name="T:Gablarski.Server.ConnectionMadeEventArgs">
+            <summary>
+            Provides data for the <see cref="E:Gablarski.Server.IConnectionProvider.ConnectionMade"/> event.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Server.ConnectionMadeEventArgs.#ctor(Gablarski.Server.IServerConnection)">
+            <summary>
+            Creates a new instance of <see cref="T:Gablarski.Server.ConnectionMadeEventArgs"/>.
+            </summary>
+            <param name="connection">The newly formed connection.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
+        </member>
+        <member name="P:Gablarski.Server.ConnectionMadeEventArgs.Connection">
+            <summary>
+            Gets the newly formed connection.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Server.ConnectionMadeEventArgs.Cancel">
+            <summary>
+            Gets or sets whether to cancel and reject the connection.
+            </summary>
+        </member>
         <member name="M:Gablarski.Server.IRedirector.CheckRedirect(System.String,System.Int32)">
             <summary>
             Checks whether this redirect is redirecting <paramref name="host"/>.
@@ -1451,19 +1807,6 @@
             <param name="port">The port to check.</param>
             <returns>The host to redirect to if redirecting, <c>null</c> otherwise.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="host"/> is <c>null</c>.</exception>
-        </member>
-        <member name="M:Gablarski.Server.IServerPersistance.Persist(Gablarski.UserInfo)">
-            <summary>
-            Persists information about the user.
-            </summary>
-            <param name="user">The user to persist.</param>
-        </member>
-        <member name="M:Gablarski.Server.IServerPersistance.GetUser(System.Int32)">
-            <summary>
-            Loads persisted data about the user.
-            </summary>
-            <param name="userId">The id of the user to load.</param>
-            <returns><c>null</c> if the user does not exist.</returns>
         </member>
         <member name="M:Gablarski.Server.IConnectionManager.Connect(Gablarski.IConnection)">
             <exception cref="T:System.ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
@@ -1484,14 +1827,14 @@
             <param name="source">The source to remove.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="source"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerSourceHandler.Remove(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Server.IServerSourceHandler.Remove(Gablarski.IUserInfo)">
             <summary>
             Removes all audio sources owned by <paramref name="user"/> and notifies clients.
             </summary>
             <param name="user">The user to remove all sources for.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerSourceManager.Create(System.String,Gablarski.UserInfo,Gablarski.Audio.AudioCodecArgs)">
+        <member name="M:Gablarski.Server.IServerSourceManager.Create(System.String,Gablarski.IUserInfo,Gablarski.Audio.AudioCodecArgs)">
             <summary>
             Creates a new audio source 
             </summary>
@@ -1502,7 +1845,7 @@
             <exception cref="T:System.ArgumentException"><paramref name="name"/> is in use by the user already.</exception>
             <exception cref="T:System.ArgumentNullException"><paramref name="name"/>, <paramref name="owner"/> or <paramref name="audioArgs"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerSourceManager.IsSourceNameTaken(Gablarski.UserInfo,System.String)">
+        <member name="M:Gablarski.Server.IServerSourceManager.IsSourceNameTaken(Gablarski.IUserInfo,System.String)">
             <summary>
             Gets whether the <paramref name="sourceName"/> is in use by <paramref name="user"/>.
             </summary>
@@ -1511,7 +1854,7 @@
             <returns><c>true</c> if the source name is in use, <c>false</c> if not or <paramref name="user"/> wasn't found.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> or <paramref name="sourceName"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerUserHandler.Move(Gablarski.UserInfo,Gablarski.ChannelInfo)">
+        <member name="M:Gablarski.Server.IServerUserHandler.Move(Gablarski.IUserInfo,Gablarski.ChannelInfo)">
             <summary>
             Moves <paramref name="user"/> to the <paramref name="targetChannel"/>.
             </summary>
@@ -1522,28 +1865,50 @@
             The main reasons for a failed move are that the user or channel no longer exists.
             </remarks>
         </member>
-        <member name="M:Gablarski.Server.IServerUserManager.Login(Gablarski.IConnection,Gablarski.UserInfo)">
+        <member name="M:Gablarski.Server.IServerUserHandler.ApproveRegistration(Gablarski.IUserInfo)">
+            <summary>
+            Pre-approves registration for <paramref name="user"/>.
+            </summary>
+            <param name="user">The user to pre-approve for registration.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IServerUserHandler.ApproveRegistration(System.String)">
+            <summary>
+            Approves the awaiting registration with the <paramref name="username"/>.
+            </summary>
+            <param name="username">The username for the awaiting registration.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IServerUserHandler.Disconnect(Gablarski.IUserInfo,Gablarski.Messages.DisconnectionReason)">
+            <summary>
+            Disconnects a user for a specific reason.
+            </summary>
+            <param name="user">The user to disconnect.</param>
+            <param name="reason">The reason to disconnect the user.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IServerUserManager.Login(Gablarski.IConnection,Gablarski.IUserInfo)">
             <exception cref="T:System.ArgumentNullException"><paramref name="connection"/> or <paramref name="user"/> is <c>null</c>.</exception>
             <remarks>
             If <paramref name="user"/> is already logged in, the new <paramref name="connection"/> should be associated with it.
             </remarks>
         </member>
-        <member name="M:Gablarski.Server.IServerUserManager.GetIsLoggedIn(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Server.IServerUserManager.GetIsLoggedIn(Gablarski.IUserInfo)">
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
         <member name="M:Gablarski.Server.IServerUserManager.GetIsLoggedIn(Gablarski.IConnection)">
             <exception cref="T:System.ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerUserManager.Join(Gablarski.IConnection,Gablarski.UserInfo)">
+        <member name="M:Gablarski.Server.IServerUserManager.Join(Gablarski.IConnection,Gablarski.IUserInfo)">
             <exception cref="T:System.ArgumentNullException"><paramref name="connection"/> or <paramref name="user"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerUserManager.GetIsJoined(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Server.IServerUserManager.GetIsJoined(Gablarski.IUserInfo)">
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
         <member name="M:Gablarski.Server.IServerUserManager.GetIsJoined(Gablarski.IConnection)">
             <exception cref="T:System.ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerUserManager.Move(Gablarski.UserInfo,Gablarski.ChannelInfo)">
+        <member name="M:Gablarski.Server.IServerUserManager.Move(Gablarski.IUserInfo,Gablarski.ChannelInfo)">
             <summary>
             Moves <paramref name="user"/> to <paramref name="channel"/>.
             </summary>
@@ -1551,7 +1916,7 @@
             <param name="channel">The channel to move the user to.</param>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> or <paramref name="channel"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IServerUserManager.ToggleMute(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Server.IServerUserManager.ToggleMute(Gablarski.IUserInfo)">
             <summary>
             Toggles mute on the <paramref name="user"/>.
             </summary>
@@ -1559,8 +1924,8 @@
             <returns><c>true</c> if <paramref name="user"/> is now muted, <c>false</c> otherwise.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Gablarski.Server.IServerUserManager.SetStatus(Gablarski.UserInfo,Gablarski.UserStatus)" -->
-        <member name="M:Gablarski.Server.IServerUserManager.SetComment(Gablarski.UserInfo,System.String)">
+        <!-- Badly formed XML comment ignored for member "M:Gablarski.Server.IServerUserManager.SetStatus(Gablarski.IUserInfo,Gablarski.UserStatus)" -->
+        <member name="M:Gablarski.Server.IServerUserManager.SetComment(Gablarski.IUserInfo,System.String)">
             <summary>
             Sets the comment for the <paramref name="user"/>.
             </summary>
@@ -1584,7 +1949,7 @@
             spaces will not result in an unused nickname.
             </remarks>
         </member>
-        <member name="M:Gablarski.Server.IServerUserManager.GetConnection(Gablarski.UserInfo)">
+        <member name="M:Gablarski.Server.IServerUserManager.GetConnection(Gablarski.IUserInfo)">
             <summary>
             Gets the connection associated with the <paramref name="user"/>. <c>null</c> if not found.
             </summary>
@@ -1600,8 +1965,78 @@
             <returns>The associated user, <c>null</c> if not found.</returns>
             <exception cref="T:System.ArgumentNullException"><paramref name="connection"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.ServerUserHandler.AttemptNicknameRecovery(Gablarski.UserInfo,System.String)">
+        <member name="F:Gablarski.RegisterResult.FailedUnknown">
+            <summary>
+            Failed for an unknown reason.
+            </summary>
+        </member>
+        <member name="F:Gablarski.RegisterResult.Success">
+            <summary>
+            Succeeded (or entered successfully for approval.)
+            </summary>
+        </member>
+        <member name="F:Gablarski.RegisterResult.FailedUsername">
+            <summary>
+            Failed because the username is invalid.
+            </summary>
+        </member>
+        <member name="F:Gablarski.RegisterResult.FailedPassword">
+            <summary>
+            Failed because the password is invalid.
+            </summary>
+        </member>
+        <member name="F:Gablarski.RegisterResult.FailedUsernameInUse">
+            <summary>
+            Failed because the username is already in use.
+            </summary>
+        </member>
+        <member name="F:Gablarski.RegisterResult.FailedUnsupported">
+            <summary>
+            Failed because the user provider does not support registration or it has been disabled.
+            </summary>
+        </member>
+        <member name="F:Gablarski.RegisterResult.FailedNotApproved">
+            <summary>
+            Failed because in this pre-approval system of registration, you are not pre-approved.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Server.ServerUserHandler.AttemptNicknameRecovery(Gablarski.IUserInfo,System.String)">
             <returns><c>true</c> if the nickname is now free, <c>false</c> otherwise.</returns>
+        </member>
+        <member name="T:Gablarski.UserInfo">
+            <summary>
+            Represents a joined user.
+            </summary>
+        </member>
+        <member name="P:Gablarski.UserInfo.IsRegistered">
+            <summary>
+            Gets whether the user is registered or is a guest.
+            </summary>
+        </member>
+        <member name="P:Gablarski.UserInfo.Username">
+            <summary>
+            Gets the user's unique username. <see cref="P:Gablarski.UserInfo.Nickname"/> if unregistered.
+            </summary>
+        </member>
+        <member name="P:Gablarski.UserInfo.CurrentChannelId">
+            <summary>
+            Gets the Id of the channel the user is currently in.
+            </summary>
+        </member>
+        <member name="P:Gablarski.UserInfo.Nickname">
+            <summary>
+            Gets the user's nickname.
+            </summary>
+        </member>
+        <member name="P:Gablarski.UserInfo.Phonetic">
+            <summary>
+            Gets the user's phonetic.
+            </summary>
+        </member>
+        <member name="P:Gablarski.UserInfo.IsMuted">
+            <summary>
+            Gets whether the user is muted or not.
+            </summary>
         </member>
         <member name="P:Gablarski.ServerInfo.Name">
             <summary>
@@ -1623,6 +2058,21 @@
             Gets whether the server is passworded or not.
             </summary>
         </member>
+        <member name="P:Gablarski.ServerInfo.RegistrationMode">
+            <summary>
+            Gets the server's registration mode. 
+            </summary>
+        </member>
+        <member name="P:Gablarski.ServerInfo.RegistrationContent">
+            <summary>
+            Gets the server's registration content. 
+            </summary>
+        </member>
+        <member name="P:Gablarski.ServerInfo.PublicRSAParameters">
+            <summary>
+            Gets the server's public RSA parameters.
+            </summary>
+        </member>
         <member name="T:Gablarski.Server.IPermissionsProvider">
             <summary>
             Contract for providers of permissions
@@ -1642,10 +2092,14 @@
             <param name="userId">The user id to set permissions for.</param>
             <param name="permissions">The permissions to set for the user.</param>
             <exception cref="T:System.NotSupportedException">If <see cref="P:Gablarski.Server.IPermissionsProvider.UpdatedSupported"/> is <c>false</c>.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="permissions"/> is <c>null</c>.</exception>
+            <remarks>
+            This should only update permissions in <paramref name="permissions"/>, it's not a blanket set.
+            </remarks>
         </member>
         <member name="E:Gablarski.Server.IPermissionsProvider.PermissionsChanged">
             <summary>
-            Fired when persmissions have changed.
+            Fired when permissions have changed.
             </summary>
         </member>
         <member name="P:Gablarski.Server.IPermissionsProvider.UpdatedSupported">
@@ -1653,36 +2107,105 @@
             Gets whether or not the permissions provided can be updated.
             </summary>
         </member>
-        <member name="M:Gablarski.Server.IAuthenticationProvider.UserExists(System.String)">
+        <member name="M:Gablarski.Server.IUserProvider.GetUsers">
+            <summary>
+            Gets all the users.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Server.IUserProvider.GetAwaitingRegistrations">
+            <summary>
+            Gets the usernames for awaiting approvals.
+            </summary>
+            <returns>The usernames of awaiting approvals.</returns>
+            <exception cref="T:System.NotSupportedException">Approvals are not supported.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IUserProvider.ApproveRegistration(System.String)">
+            <summary>
+            Approves the registration of <paramref name="username"/>.
+            </summary>
+            <param name="username">The username to approve.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is <c>null</c>.</exception>
+            <exception cref="T:System.NotSupportedException">Approvals are not supported.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IUserProvider.RejectRegistration(System.String)">
+            <summary>
+            Rejects the registration of <paramref name="username"/>.
+            </summary>
+            <param name="username">The username to reject.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is <c>null</c>.</exception>
+            <exception cref="T:System.NotSupportedException">Approvals are not supported.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IUserProvider.UserExists(System.String)">
             <summary>
             Gets whether a user exists or not.
             </summary>
             <param name="username">The username to check.</param>
             <returns><c>true</c> if the username exists, <c>false</c> otherwise</returns>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is <c>null</c>.</exception>
         </member>
-        <member name="M:Gablarski.Server.IAuthenticationProvider.Login(System.String,System.String)">
+        <member name="M:Gablarski.Server.IUserProvider.GetBans">
+            <summary>
+            Gets an enumerable of bans persisted.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Gablarski.Server.IUserProvider.AddBan(Gablarski.BanInfo)">
+            <summary>
+            Adds a ban.
+            </summary>
+            <param name="ban">The ban to add.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="ban"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IUserProvider.RemoveBan(Gablarski.BanInfo)">
+            <summary>
+            Removes a ban.
+            </summary>
+            <param name="ban">The ban to remove.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="ban"/> is <c>null</c>.</exception>
+        </member>
+        <member name="M:Gablarski.Server.IUserProvider.Login(System.String,System.String)">
             <summary>
             Attempts to login a user using the supplied <paramref name="username"/> and <paramref name="password"/>.
             </summary>
             <param name="username">The username to login with.</param>
-            <param name="password">The password to login to the username with.</param>
+            <param name="password">The password to login to the username with, <c>null</c> for guests.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/></exception>
         </member>
-        <member name="M:Gablarski.Server.IAuthenticationProvider.Register(System.String,System.String)">
+        <member name="M:Gablarski.Server.IUserProvider.Register(System.String,System.String)">
             <summary>
             Registers a new user account with <paramref name="username"/> and <paramref name="password"/>.
             </summary>
             <param name="username">The username to register.</param>
             <param name="password">The password to register <paramref name="username"/> with.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> or <paramref name="password"/> is <c>null</c>.</exception>
+            <returns>The result of registration.</returns>
         </member>
-        <member name="P:Gablarski.Server.IAuthenticationProvider.UpdateSupported">
+        <member name="E:Gablarski.Server.IUserProvider.BansChanged">
+            <summary>
+            Raised when bans change both deliberately (<see cref="M:Gablarski.Server.IUserProvider.AddBan(Gablarski.BanInfo)"/>) or externally.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Server.IUserProvider.UpdateSupported">
             <summary>
             Gets whether or not users can be updated.
             </summary>
         </member>
-        <member name="T:Gablarski.Server.IBackendProvider">
+        <member name="P:Gablarski.Server.IUserProvider.RegistrationMode">
             <summary>
-            Interface for integrated backend providers.
+            Gets the registration mode of the user provider.
             </summary>
+        </member>
+        <member name="P:Gablarski.Server.IUserProvider.RegistrationContent">
+            <summary>
+            Gets the content for any of the various forms of <see cref="T:Gablarski.UserRegistrationMode"/>.
+            </summary>
+            <exception cref="T:System.NotSupportedException"><see cref="P:Gablarski.Server.IUserProvider.RegistrationMode"/> is <see cref="F:Gablarski.UserRegistrationMode.None"/>.</exception>
+            <remarks>
+            When <see cref="P:Gablarski.Server.IUserProvider.RegistrationMode"/> is:
+            <see cref="F:Gablarski.UserRegistrationMode.Normal"/>: This is the user agreement to register (<c>null</c>/<c>String.Empty</c> to skip.)
+            <see cref="F:Gablarski.UserRegistrationMode.WebPage"/>: This is the URL.
+            <see cref="F:Gablarski.UserRegistrationMode.Message"/>: This is the message.
+            </remarks>
         </member>
         <member name="T:Gablarski.Server.IChannelProvider">
             <summary>
@@ -1712,11 +2235,6 @@
             Fired when the channel list or default channel is updated.
             </summary>
         </member>
-        <member name="P:Gablarski.Server.IChannelProvider.IdentifyingType">
-            <summary>
-            Gets the type used to uniquely identify a channel.
-            </summary>
-        </member>
         <member name="P:Gablarski.Server.IChannelProvider.UpdateSupported">
             <summary>
             Gets whether or not clients can create/update/delete channels.
@@ -1724,19 +2242,11 @@
         </member>
         <member name="P:Gablarski.Server.IChannelProvider.DefaultChannel">
             <summary>
-            Gets the default channel. <c>null</c> if none set or not supported.
+            Gets or sets the default channel. <c>null</c> if none set or not supported.
             </summary>
             <remarks>
             If no default channel is set or supported, the first channel returned from GetChannels will be used.
             </remarks>
-        </member>
-        <member name="M:Gablarski.Server.IBackendProvider.GetPermissions(System.Int32,System.Int32)">
-            <summary>
-            Gets user permissions for a specific channel.
-            </summary>
-            <param name="channelId">The channel to check the user's permissions on.</param>
-            <param name="userId">The player to check the permissions on.</param>
-            <returns>The permissions for the player in the specific channel.</returns>
         </member>
         <member name="M:Gablarski.Server.ChannelProviderExtensions.GetDefaultOrFirst(Gablarski.Server.IChannelProvider)">
             <summary>
@@ -1745,12 +2255,41 @@
             <param name="self">The <c>IChannelProvider</c> to retrieve the channels from.</param>
             <returns>The default channel, the first channel if no default set or <c>null</c> if no channels.</returns>
         </member>
-        <member name="P:Gablarski.Server.IServerContext.BackendProvider">
+        <member name="F:Gablarski.Messages.DisconnectionReason.LoggedInElsewhere">
             <summary>
-            Gets the backend provider for the server (<c>null</c> if not specified).
+            Disconnected because the user logged in elsewhere.
+            </summary>
+            <remarks>
+            Do not reconnect.
+            </remarks>
+        </member>
+        <member name="F:Gablarski.Messages.DisconnectionReason.Requested">
+            <summary>
+            Disconnected because the user requested it.
+            </summary>
+            <remarks>
+            Do not reconnect.
+            </remarks>
+        </member>
+        <member name="F:Gablarski.Messages.DisconnectionReason.Kicked">
+            <summary>
+            Disconnected because you were impolitely asked to leave.
+            </summary>
+            <remarks>
+            Do not reconnect.
+            </remarks>
+        </member>
+        <member name="F:Gablarski.Messages.DisconnectionReason.Rejected">
+            <summary>
+            Disconnected because your connection was rejected. (Local reason)
             </summary>
         </member>
-        <member name="P:Gablarski.Server.IServerContext.AuthenticationProvider">
+        <member name="F:Gablarski.Messages.DisconnectionReason.Redirected">
+            <summary>
+            Disconnected because you are redirecting. (Local reason)
+            </summary>
+        </member>
+        <member name="P:Gablarski.Server.IServerContext.UserProvider">
             <summary>
             Gets the authentication provider for the server.
             </summary>
@@ -1800,7 +2339,17 @@
             Gets the redirectors for this server.
             </summary>
         </member>
-        <member name="M:Gablarski.Server.GablarskiServer.#ctor(Gablarski.Server.ServerSettings,Gablarski.Server.IAuthenticationProvider,Gablarski.Server.IPermissionsProvider,Gablarski.Server.IChannelProvider)">
+        <member name="P:Gablarski.Server.IServerContext.EncryptionParameters">
+            <summary>
+            Gets the public encryption parameters for this server.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Server.IServerContext.Settings">
+            <summary>
+            Gets the settings for this server.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Server.GablarskiServer.#ctor(Gablarski.Server.ServerSettings,Gablarski.Server.IUserProvider,Gablarski.Server.IPermissionsProvider,Gablarski.Server.IChannelProvider)">
             <summary>
             Initializes a new <c>GablarskiServer</c> instance.
             </summary>
@@ -1808,13 +2357,6 @@
             <param name="authProvider">The user authentication provider for the server to use.</param>
             <param name="permissionProvider">The user permissions provider for the server to use.</param>
             <param name="channelProvider">The channel provider for the server to use.</param>
-        </member>
-        <member name="M:Gablarski.Server.GablarskiServer.#ctor(Gablarski.Server.ServerSettings,Gablarski.Server.IBackendProvider)">
-            <summary>
-            Initializes a new <c>GablarskiServer</c> instance.
-            </summary>
-            <param name="settings">The settings for the server, providing name, description, etc.</param>
-            <param name="provider">The backend provider for the server to use.</param>
         </member>
         <member name="M:Gablarski.Server.GablarskiServer.AddConnectionProvider(Gablarski.Server.IConnectionProvider)">
             <summary>
@@ -1858,11 +2400,6 @@
         <member name="P:Gablarski.Server.GablarskiServer.VerboseTracing">
             <summary>
             Gets or sets whether to trace verbosely (trace audio data mostly).
-            </summary>
-        </member>
-        <member name="F:Gablarski.PermissionName.Login">
-            <summary>
-            Login to the server.
             </summary>
         </member>
         <member name="F:Gablarski.PermissionName.KickPlayerFromChannel">
@@ -1920,35 +2457,27 @@
             Request a channel list.
             </summary>
         </member>
-        <member name="M:Gablarski.Client.ClientUserHandler.Move(Gablarski.UserInfo,Gablarski.ChannelInfo)">
+        <member name="F:Gablarski.PermissionName.RequestUserList">
+            <summary>
+            Request a list of user's online.
+            </summary>
+        </member>
+        <member name="F:Gablarski.PermissionName.RequestFullUserList">
+            <summary>
+            Request a list of all users.
+            </summary>
+        </member>
+        <member name="F:Gablarski.PermissionName.BanUser">
+            <summary>
+            Add or remove bans.
+            </summary>
+        </member>
+        <member name="M:Gablarski.Client.ClientUserHandler.Move(Gablarski.IUserInfo,Gablarski.ChannelInfo)">
             <summary>
             Requests to move <paramref name="user"/> to <paramref name="targetChannel"/>.
             </summary>
             <param name="user">The user to move.</param>
             <param name="targetChannel">The target channel to move the user to.</param>
-        </member>
-        <member name="M:Gablarski.Client.ClientUserHandler.GetIsIgnored(Gablarski.UserInfo)">
-            <summary>
-            Gets whether or not <paramref name="user"/> is currently ignored.
-            </summary>
-            <param name="user">The user to check.</param>
-            <returns><c>true</c> if ignored, <c>false</c> if not.</returns>
-            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
-        </member>
-        <member name="M:Gablarski.Client.ClientUserHandler.ToggleIgnore(Gablarski.UserInfo)">
-            <summary>
-            Toggles <paramref name="user"/>'s ignored status.
-            </summary>
-            <param name="user">The user to toggle ignored status.</param>
-            <returns><c>true</c> if the user is now ignored, <c>false</c> if now unignored.</returns>
-            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
-        </member>
-        <member name="M:Gablarski.Client.ClientUserHandler.ToggleMute(Gablarski.UserInfo)">
-            <summary>
-            Requests a mute toggle for <paramref name="user"/>.
-            </summary>
-            <param name="user">The user to attempt to mute or unmute.</param>
-            <exception cref="T:System.ArgumentNullException"><paramref name="user"/> is <c>null</c>.</exception>
         </member>
         <member name="E:Gablarski.Client.ClientUserHandler.ReceivedUserList">
             <summary>
@@ -1967,7 +2496,12 @@
         </member>
         <member name="E:Gablarski.Client.ClientUserHandler.UserMuted">
             <summary>
-            A user was muted or ignored.
+            A user was muted.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Client.ClientUserHandler.UserIgnored">
+            <summary>
+            A user was ignored.
             </summary>
         </member>
         <member name="E:Gablarski.Client.ClientUserHandler.UserUpdated">
@@ -1980,9 +2514,19 @@
             A user has changed channels.
             </summary>
         </member>
+        <member name="E:Gablarski.Client.ClientUserHandler.UserKickedFromChannel">
+            <summary>
+            A user was kicked from your current channel.
+            </summary>
+        </member>
+        <member name="E:Gablarski.Client.ClientUserHandler.UserKickedFromServer">
+            <summary>
+            A user was kicked from the server.
+            </summary>
+        </member>
         <member name="E:Gablarski.Client.ClientUserHandler.ReceivedChannelChangeResult">
             <summary>
-            Received an unsucessful result of a change channel request.
+            Received an unsuccessful result of a change channel request.
             </summary>
         </member>
         <member name="P:Gablarski.Client.ClientUserHandler.Current">
@@ -2020,86 +2564,6 @@
             Gets the result of the change channel request.
             </summary>
         </member>
-        <member name="M:Gablarski.Client.ClientSourceManager.GetEnumerator">
-            <summary>
-            Returns an enumerator that iterates through the collection.
-            </summary>
-            <returns>
-            A <see cref="T:System.Collections.Generic.IEnumerator`1"/> that can be used to iterate through the collection.
-            </returns>
-            <filterpriority>1</filterpriority>
-        </member>
-        <member name="M:Gablarski.Client.ClientSourceManager.System#Collections#IEnumerable#GetEnumerator">
-            <summary>
-            Returns an enumerator that iterates through a collection.
-            </summary>
-            <returns>
-            An <see cref="T:System.Collections.IEnumerator"/> object that can be used to iterate through the collection.
-            </returns>
-            <filterpriority>2</filterpriority>
-        </member>
-        <member name="M:Gablarski.Client.ClientSourceManager.Request(System.String,System.Byte,System.Int16)">
-            <summary>
-            Requests a channel with <paramref name="channels"/> and a default bitrate.
-            </summary>
-            <param name="channels">The number of channels to request. 1-2 is the valid range.</param>
-            <param name="name">The user-local name of the source, used to identify the source later.</param>
-        </member>
-        <member name="M:Gablarski.Client.ClientSourceManager.Request(System.String,System.Byte,System.Int16,System.Int32)">
-            <summary>
-            Requests a channel with <paramref name="channels"/> and a <paramref name="targetBitrate"/>
-            </summary>
-            <param name="channels">The number of channels to request. 1-2 is the valid range.</param>
-            <param name="targetBitrate">The target bitrate to request.</param>
-            <param name="name">The user-local name of the source, used to identify the source later.</param>
-            <remarks>
-            The server may not agree with the bitrate you request, do not set up audio based on this
-            target, but on the bitrate of the source you actually receive.
-            </remarks>
-        </member>
-        <member name="M:Gablarski.Client.ClientSourceManager.Clear">
-            <summary>
-            Clears the source manager of all sources.
-            </summary>
-        </member>
-        <member name="M:Gablarski.Client.ClientSourceManager.ToggleIgnore(Gablarski.Audio.AudioSource)">
-            <returns>The new state of ignore on <paramref name="source"/>.</returns>
-        </member>
-        <member name="E:Gablarski.Client.ClientSourceManager.ReceivedSourceList">
-            <summary>
-            A new  or updated source list has been received.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Client.ClientSourceManager.ReceivedAudioSource">
-            <summary>
-            A new audio source has been received.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Client.ClientSourceManager.AudioSourcesRemoved">
-            <summary>
-            An audio source was removed.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Client.ClientSourceManager.AudioSourceStarted">
-            <summary>
-            An audio source started playing.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Client.ClientSourceManager.AudioSourceStopped">
-            <summary>
-            An audio source stopped playing.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Client.ClientSourceManager.AudioSourceMuted">
-            <summary>
-            An audio source has been muted.
-            </summary>
-        </member>
-        <member name="E:Gablarski.Client.ClientSourceManager.ReceivedAudio">
-            <summary>
-            Audio has been received.
-            </summary>
-        </member>
         <member name="P:Gablarski.Client.ClientSourceManager.Mine">
             <summary>
             Gets a listing of the sources that belong to the current user.
@@ -2119,30 +2583,6 @@
             <summary>
             Gets the media source of the event. <c>null</c> if failed.
             </summary>
-        </member>
-        <member name="M:Gablarski.Client.CurrentUser.Login(System.String,System.String)">
-            <summary>
-            Logs into the connected server
-            </summary>
-            <param name="username">The username to log in with.</param>
-            <param name="password">The password to log in with.</param>
-            <exception cref="T:System.ArgumentNullException"><paramref name="username"/> is null or empty.</exception>
-            <exception cref="T:System.ArgumentNullException"><paramref name="password"/> is null.</exception>
-        </member>
-        <member name="M:Gablarski.Client.CurrentUser.Join(System.String,System.String)">
-            <summary>
-            Joins the connected server with the specified nickname and password.
-            </summary>
-            <param name="nickname">The nickname to use when in the server.</param>
-            <param name="serverPassword">The password to join the server.</param>
-        </member>
-        <member name="M:Gablarski.Client.CurrentUser.Join(System.String,System.String,System.String)">
-            <summary>
-            Joins the connected server with the specified nickname and password.
-            </summary>
-            <param name="nickname">The nickname to use when in the server.</param>
-            <param name="phonetic">The phonetic spelling for the nickname.</param>
-            <param name="serverPassword">The password to join the server.</param>
         </member>
         <member name="M:Gablarski.Client.CurrentUser.SetComment(System.String)">
             <summary>
@@ -2180,6 +2620,13 @@
             <summary>
             A login result has been received.
             </summary>
+        </member>
+        <member name="M:Gablarski.Audio.AudioSource.#ctor(System.String,System.Int32,System.Int32,System.Boolean,Gablarski.Audio.AudioCodecArgs)">
+            <summary>
+            Constructs a new audio source.
+            </summary>
+            <param name="name"></param>
+            <param name="sourceId">If sourceId &lt; 0, the audio source is local.</param>
         </member>
         <member name="P:Gablarski.Audio.AudioSource.IsMuted">
             <summary>
