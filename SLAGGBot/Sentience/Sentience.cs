@@ -51,11 +51,11 @@ namespace SLAGGBot
 
 			this.rnd = this.rand.Next (40);
 
-			(this.tapperThread = new Thread (this.ToeTapper)
-			{
-				IsBackground = true,
-				Name = "Toe Tapper"
-			}).Start();
+			//(this.tapperThread = new Thread (this.ToeTapper)
+			//{
+			//    IsBackground = true,
+			//    Name = "Toe Tapper"
+			//}).Start();
 		}
 
 		public void Stop ()
