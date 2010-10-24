@@ -1143,6 +1143,11 @@
             Gets whether the client is currently connected.
             </summary>
         </member>
+        <member name="P:Gablarski.Client.GablarskiClient.IsConnecting">
+            <summary>
+            Gets whether the client is currently trying to connect or reconnect.
+            </summary>
+        </member>
         <member name="P:Gablarski.Client.GablarskiClient.Channels">
             <summary>
             Gets the channel manager for this client.
@@ -1202,6 +1207,26 @@
         <member name="P:Gablarski.Client.RejectedConnectionEventArgs.Reason">
             <summary>
             Gets the reason for rejecting the connection.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Client.RejectedConnectionEventArgs.ReconnectAttempt">
+            <summary>
+            Gets the reconnect attempt number. 0 = not an attempt.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Client.RejectedConnectionEventArgs.Reconnecting">
+            <summary>
+            Gets whether this was a reconnect attempt failing or not.
+            </summary>
+        </member>
+        <member name="P:Gablarski.Client.RejectedConnectionEventArgs.Reconnect">
+            <summary>
+            Gets or sets whether to attempt to reconnect.
+            </summary>
+        </member>
+        <member name="T:Gablarski.Client.DisconnectedEventArgs">
+            <summary>
+            Holds data for the <see cref="E:Gablarski.Client.GablarskiClient.Disconnected"/> event.
             </summary>
         </member>
         <member name="M:Gablarski.Audio.IAudioDeviceProvider.GetDevices">
@@ -1623,6 +1648,11 @@
             You were hit with a ban hammer.
             </summary>
         </member>
+        <member name="F:Gablarski.Messages.ConnectionRejectedReason.CouldNotResolve">
+            <summary>
+            The client could not resolve the host name.
+            </summary>
+        </member>
         <member name="F:Gablarski.Messages.SourceResult.NewSource">
             <summary>
             Another users new source.
@@ -1662,32 +1692,6 @@
             <summary>
             Failed because the requesting user already has a source with this name.
             </summary>
-        </member>
-        <member name="F:Gablarski.ModuleLoaderOptions.SearchCurrent">
-            <summary>
-            Searches the assembly that <see cref="T:Gablarski.ModuleLoader`1"/> is defined in.
-            </summary>
-        </member>
-        <member name="F:Gablarski.ModuleLoaderOptions.SearchExecuting">
-            <summary>
-            Search the currently executing assembly for implementing types.
-            </summary>
-        </member>
-        <member name="F:Gablarski.ModuleLoaderOptions.SearchRecursively">
-            <summary>
-            Search the paths supplied recursively.
-            </summary>
-        </member>
-        <member name="F:Gablarski.ModuleLoaderOptions.SearchAll">
-            <summary>
-            Searches everywhere.
-            </summary>
-        </member>
-        <member name="T:Gablarski.ModuleLoader`1">
-            <summary>
-            Finds and loads implementing types of a contract.
-            </summary>
-            <typeparam name="T">The contract to find implementers for.</typeparam>
         </member>
         <member name="M:Gablarski.Network.NetworkClientConnection.Send(Gablarski.Messages.MessageBase)">
             <summary>
@@ -1730,7 +1734,7 @@
         </member>
         <member name="E:Gablarski.Network.NetworkClientConnection.Connected">
             <summary>
-            The client has succesfully connected to the end point.
+            The client has successfully connected to the end point.
             </summary>
         </member>
         <member name="P:Gablarski.Server.IServerConnection.IPAddress">
