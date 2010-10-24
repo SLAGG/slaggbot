@@ -79,10 +79,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Mono.Rocks\Mono.Rocks.csproj">
-      <Project>{F656F792-2CDE-4E17-BB5F-6A6F1C266CB8}</Project>
-      <Name>Mono.Rocks</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SLAGG.Plugin\SLAGG.Plugin.csproj">
       <Project>{3ED7D475-D73F-41B5-93A2-F7B49463C549}</Project>
       <Name>SLAGG.Plugin</Name>
@@ -91,6 +87,7 @@
   <ItemGroup>
     <None Include="SLAGGBot.exe.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
