@@ -1,0 +1,9 @@
+[
+    "hubot/src/scripts/httpd",
+    "hubot/src/scripts/math",
+    "hubot/src/scripts/ping",
+    "hubot/src/scripts/pugme",
+    "hubot/src/scripts/translate",
+    "hubot/src/scripts/google-images",
+    "hubot/src/scripts/help"
+]
