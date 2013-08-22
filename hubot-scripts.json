@@ -1,7 +1,7 @@
 [
-    "alot",
-    "aww",
-    "redis-brain",
-    "karma",
-    "sloth-me"
+    "alot.coffee",
+    "aww.coffee",
+    "redis-brain.coffee",
+    "karma.coffee",
+    "sloth-me.coffee"
 ]
