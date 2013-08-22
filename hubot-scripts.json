@@ -1,7 +1,8 @@
 [
     "alot.coffee",
     "aww.coffee",
-    "redis-brain.coffee",
+    "calm-down.coffee",
     "karma.coffee",
+    "redis-brain.coffee",
     "sloth-me.coffee"
 ]
