@@ -14,6 +14,13 @@
 #   terite
 #   Nullsoldier
 
+pad = (num, len) ->
+  num = '' + num
+  while num.length < len
+    num = '0' + num
+
+  return num
+
 module.exports = (robot) ->
   robot.respond /null time/i, (msg) ->
     now  = new Date
@@ -29,4 +36,4 @@ module.exports = (robot) ->
       minutes = 60 - minutes
       utdt = "DT (down time)"
 
-    msg.send("#{hours}:#{minutes} #{utdt}")
+    msg.send("#{pad hours, 2}:#{pad minutes, 2} #{utdt}")
