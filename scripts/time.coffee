@@ -22,9 +22,8 @@ pad = (num, len) ->
   return num
 
 module.exports = (robot) ->
-  robot.respond /null time/i, (msg) ->
+  robot.hear /null time/i, (msg) ->
     now  = new Date
-
 
     hours = now.getHours()
     minutes = now.getMinutes();
